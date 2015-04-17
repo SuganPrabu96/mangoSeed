@@ -883,9 +883,11 @@ public class Master extends ActionBarActivity {
 
                         Log.i("Inside handler", "True");
 
-                        for (int i = 0; i < numSubCategories[msg.arg2]; i++) {
-                            listOfSubCateg.add(i, new SubcategoryCardClass(subcategoryName.get(msg.arg2)[i], 0));
-                            //TODO change this to image URL received from db
+                        if(listOfSubCateg.isEmpty()) {
+                            for (int i = 0; i < numSubCategories[msg.arg2]; i++) {
+                                listOfSubCateg.add(i, new SubcategoryCardClass(subcategoryName.get(msg.arg2)[i], 0));
+                                //TODO change this to image URL received from db
+                            }
                         }
 
                         mAdapter3 = new SubcategoryCardAdapter(listOfSubCateg, rootView1.getContext());
