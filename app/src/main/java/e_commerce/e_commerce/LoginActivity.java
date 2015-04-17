@@ -1072,6 +1072,13 @@ public class LoginActivity extends FragmentActivity implements
             }
 
             if(loginSuccess==true) {
+                prefs.edit().putString("Name",customerName).apply();
+                prefs.edit().putString("Name",customerName).commit();
+                prefs.edit().putString("Phone",customerPhone).apply();
+                prefs.edit().putString("Phone",customerPhone).commit();
+                prefs.edit().putString("Address",customerAddress).apply();
+                prefs.edit().putString("Address",customerAddress).commit();
+
                 Intent loginIntent = new Intent(LoginActivity.this, Master.class);
                 loginIntent.putExtra("loginMethod", "App");
                 startActivity(loginIntent);

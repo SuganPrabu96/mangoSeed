@@ -26,6 +26,8 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -40,6 +42,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -51,6 +54,8 @@ import android.widget.Toast;
 
 import com.facebook.widget.ProfilePictureView;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -85,6 +90,7 @@ public class Master extends ActionBarActivity {
     public static ArrayList<int[]> subcategoryID;
     public static ArrayList<String[]> subcategoryName;
     private final String categoriesURL = "http://grokart.ueuo.com/listCategories.php";
+    private static final String updateDetailsURL = "http://grokart.ueuo.com/editInfo.php";
     public FragmentTransaction fragmentTransaction;
     public Dialog locationDialog;
     public String[] location = {"Chennai", "Adyar"}; // location[0] is city and location[1] is area
@@ -94,6 +100,8 @@ public class Master extends ActionBarActivity {
     private ListView drawerList;
     private ActionBarDrawerToggle mDrawerToggle;
     private String productsJSON;
+    private static String updateDetailsReturnedJSON;
+    public static ProgressDialog updateProgress;
 
     // TODO change the initial value of location based on Shared prefs
 
@@ -105,6 +113,8 @@ public class Master extends ActionBarActivity {
         setContentView(R.layout.nav_bar);
 
         categoryName = new ArrayList();
+
+        updateProgress = new ProgressDialog(Master.this);
 
         facebookProfileIcon = (ProfilePictureView) findViewById(R.id.profilepic_facebook);
         profileIconText = (TextView) findViewById(R.id.profilepic_name);
@@ -157,7 +167,7 @@ public class Master extends ActionBarActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
 
-        fragmentTransaction.add(R.id.frame_container, new MyAccountFragment()); //TODO Edit this
+        fragmentTransaction.add(R.id.frame_container, new ProductsFragment());
         fragmentTransaction.commit();
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -811,10 +821,256 @@ public class Master extends ActionBarActivity {
         public MyAccountFragment() {
         }
 
+        private EditText editNewName, editNewEmail, editNewAddress, editNewPhone, editNewPassword;
+        private TextView name, email, address, phone, password;
+        Button submit;
+        public static Handler msgHandler;
+
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_my_account, container, false);
+            final View rootView = inflater.inflate(R.layout.fragment_my_account, container, false);
+
+            submit = (Button) rootView.findViewById(R.id.accountButtonSubmit);
+
+            editNewName = (EditText) rootView.findViewById(R.id.accountEditTextName);
+            name = (TextView) rootView.findViewById(R.id.accountTextViewName);
+
+            editNewEmail = (EditText) rootView.findViewById(R.id.accountEditEmail);
+            email = (TextView) rootView.findViewById(R.id.accountTextViewEmail);
+
+            editNewPhone = (EditText) rootView.findViewById(R.id.accountEditTextPhone);
+            phone = (TextView) rootView.findViewById(R.id.accountTextViewPhone);
+
+            editNewAddress = (EditText) rootView.findViewById(R.id.accountEditTextAddress);
+            address = (TextView) rootView.findViewById(R.id.accountTextViewAddress);
+
+            editNewPassword = (EditText) rootView.findViewById(R.id.accountEditTextPassword);
+            password = (TextView) rootView.findViewById(R.id.accountTextViewPassword);
+
+            editNewName.setVisibility(View.INVISIBLE);
+            name.setVisibility(View.VISIBLE);
+
+            editNewEmail.setVisibility(View.INVISIBLE);
+            email.setVisibility(View.VISIBLE);
+
+            editNewPhone.setVisibility(View.INVISIBLE);
+            phone.setVisibility(View.VISIBLE);
+
+            editNewAddress.setVisibility(View.INVISIBLE);
+            address.setVisibility(View.VISIBLE);
+
+            editNewPassword.setVisibility(View.INVISIBLE);
+            password.setVisibility(View.VISIBLE);
+
+            submit.setVisibility(View.INVISIBLE);
+
+            name.setText(LoginActivity.prefs.getString("Name",""));
+            email.setText(LoginActivity.prefs.getString("Email",""));
+            phone.setText(LoginActivity.prefs.getString("Phone",""));
+            address.setText(LoginActivity.prefs.getString("Address",""));
+            password.setText(LoginActivity.prefs.getString("Password",""));
+
+            Log.i("Name",LoginActivity.prefs.getString("Name",""));
+
+            name.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    name.setVisibility(View.INVISIBLE);
+                    editNewName.setVisibility(View.VISIBLE);
+                }
+            });
+
+            email.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    email.setVisibility(View.INVISIBLE);
+                    editNewEmail.setVisibility(View.VISIBLE);
+                }
+            });
+
+            phone.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    phone.setVisibility(View.INVISIBLE);
+                    editNewPhone.setVisibility(View.VISIBLE);
+                }
+            });
+
+            address.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    address.setVisibility(View.INVISIBLE);
+                    editNewAddress.setVisibility(View.VISIBLE);
+                }
+            });
+
+            password.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    password.setVisibility(View.INVISIBLE);
+                    editNewPassword.setVisibility(View.VISIBLE);
+                }
+
+            });
+
+            editNewName.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    if(name.getText()!=s.toString()) {
+                        name.setText(s.toString());
+                        submit.setVisibility(View.VISIBLE);
+                    }
+                    else if(LoginActivity.prefs.getString("Name","").equals(name.getText())&&
+                            LoginActivity.prefs.getString("Email","").equals(email.getText())&&
+                            LoginActivity.prefs.getString("Address","").equals(address.getText())&&
+                            LoginActivity.prefs.getString("Phone","").equals(phone.getText())&&
+                            LoginActivity.prefs.getString("Password","").equals(password.getText()))
+                        submit.setVisibility(View.INVISIBLE);
+
+                }
+            });
+
+            editNewEmail.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    if(email.getText()!=s.toString()) {
+                        email.setText(s.toString());
+                        submit.setVisibility(View.VISIBLE);
+                    }
+                    else if(LoginActivity.prefs.getString("Name","").equals(name.getText())&&
+                            LoginActivity.prefs.getString("Email","").equals(email.getText())&&
+                            LoginActivity.prefs.getString("Address","").equals(address.getText())&&
+                            LoginActivity.prefs.getString("Phone","").equals(phone.getText())&&
+                            LoginActivity.prefs.getString("Password","").equals(password.getText()))
+                        submit.setVisibility(View.INVISIBLE);
+                }
+            });
+
+            editNewPhone.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    if(phone.getText()!=s.toString()) {
+                        phone.setText(s.toString());
+                        submit.setVisibility(View.VISIBLE);
+                    }
+                    else if(LoginActivity.prefs.getString("Name","").equals(name.getText())&&
+                            LoginActivity.prefs.getString("Email","").equals(email.getText())&&
+                            LoginActivity.prefs.getString("Address","").equals(address.getText())&&
+                            LoginActivity.prefs.getString("Phone","").equals(phone.getText())&&
+                            LoginActivity.prefs.getString("Password","").equals(password.getText()))
+                        submit.setVisibility(View.INVISIBLE);
+                }
+            });
+
+            editNewAddress.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    if(address.getText()!=s.toString()) {
+                        address.setText(s.toString());
+                        submit.setVisibility(View.VISIBLE);
+                    }
+                    else if(LoginActivity.prefs.getString("Name","").equals(name.getText())&&
+                            LoginActivity.prefs.getString("Email","").equals(email.getText())&&
+                            LoginActivity.prefs.getString("Address","").equals(address.getText())&&
+                            LoginActivity.prefs.getString("Phone","").equals(phone.getText())&&
+                            LoginActivity.prefs.getString("Password","").equals(password.getText()))
+                        submit.setVisibility(View.INVISIBLE);
+                }
+            });
+
+            editNewPassword.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    if(password.getText()!=s.toString()) {
+                        password.setText(s.toString());
+                        submit.setVisibility(View.VISIBLE);
+                    }
+                    else if(LoginActivity.prefs.getString("Name","").equals(name.getText())&&
+                            LoginActivity.prefs.getString("Email","").equals(email.getText())&&
+                            LoginActivity.prefs.getString("Address","").equals(address.getText())&&
+                            LoginActivity.prefs.getString("Phone","").equals(phone.getText())&&
+                            LoginActivity.prefs.getString("Password","").equals(password.getText()))
+                        submit.setVisibility(View.INVISIBLE);
+                }
+            });
+
+            submit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(LoginActivity.prefs.getString("Password","").equals(editNewPassword.getText().toString()))
+                        new ChangeDetailsTask().execute(name.getText().toString(),email.getText().toString(),
+                                password.getText().toString(),address.getText().toString(),phone.getText().toString());
+                    else
+                        new ChangeDetailsTask().execute(name.getText().toString(),email.getText().toString(),""
+                                ,address.getText().toString(),phone.getText().toString());
+                }
+            });
+
+            editNewName.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    editNewName.setVisibility(View.INVISIBLE);
+                    name.setVisibility(View.VISIBLE);
+                }
+            });
+
+            msgHandler = new Handler() {
+                public void handleMessage(Message msg) {
+                    if(msg.arg1==0)
+                        Toast.makeText(rootView.getContext(), (CharSequence) msg.obj,Toast.LENGTH_SHORT).show();
+                }
+            };
 
             return rootView;
         }
@@ -841,9 +1097,10 @@ public class Master extends ActionBarActivity {
                                  Bundle savedInstanceState) {
             final View rootView1 = inflater.inflate(R.layout.fragment_category, container, false);
 
-            for (int i = 0; i < numCategories; i++) {
-                listOfCateg.add(i, new CategoryCardClass(categoryName.get(i), 0));  //TODO change this to image URL received from db
-            }
+            if(numCategories>0)
+                for (int i = 0; i < numCategories; i++) {
+                    listOfCateg.add(i, new CategoryCardClass(categoryName.get(i), 0));  //TODO change this to image URL received from db
+                }
 
             swipeRefreshLayoutProducts = (SwipeRefreshLayout) rootView1.findViewById(R.id.swipeToRefresh_Products);
 
@@ -1041,6 +1298,95 @@ public class Master extends ActionBarActivity {
 
     }
 
+    public static class ChangeDetailsTask extends AsyncTask<String,Void,String> {
+
+        String name,email,password,address,phone;
+        boolean updateSuccess = false;
+
+        @Override
+        protected void onPreExecute() {
+            Log.i("Inside PreExecute", "True");
+            updateProgress.setTitle("Updating");
+            updateProgress.setCancelable(false);
+            updateProgress.show();
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            Log.i("Inside Background","True");
+
+            name=params[0];
+            email=params[1];
+            password=params[2];
+            address=params[3];
+            phone=params[4];
+
+            List<NameValuePair> paramsUpdate = new ArrayList<NameValuePair>();
+            paramsUpdate.add(new BasicNameValuePair("ID",LoginActivity.sessionId));
+            paramsUpdate.add(new BasicNameValuePair("email",email));
+            paramsUpdate.add(new BasicNameValuePair("name",name));
+            paramsUpdate.add(new BasicNameValuePair("password",password));
+            paramsUpdate.add(new BasicNameValuePair("address",address));
+            paramsUpdate.add(new BasicNameValuePair("telephone",phone));
+            ServiceHandler jsonParser = new ServiceHandler();
+            updateDetailsReturnedJSON=jsonParser.makeServiceCall(updateDetailsURL,ServiceHandler.POST,paramsUpdate);
+            if(updateDetailsReturnedJSON!=null){
+                try{
+                    JSONObject updateJSON = new JSONObject(updateDetailsReturnedJSON);
+                    if(updateJSON.getString("success").equals("true")) {
+
+                        LoginActivity.customerEmail = email;
+                        LoginActivity.customerPassword = password;
+                        LoginActivity.customerPhone = phone;
+                        LoginActivity.customerAddress = address;
+                        LoginActivity.customerName = name;
+
+                        LoginActivity.prefs.edit().putString("Name", name).apply();
+                        LoginActivity.prefs.edit().putString("Name", name).commit();
+                        LoginActivity.prefs.edit().putString("Email", LoginActivity.user).apply();
+                        LoginActivity.prefs.edit().putString("Password", LoginActivity.pass).apply();
+                        LoginActivity.prefs.edit().putString("Email", LoginActivity.user).commit();
+                        LoginActivity.prefs.edit().putString("Password", LoginActivity.pass).commit();
+                        LoginActivity.prefs.edit().putString("Phone", phone).apply();
+                        LoginActivity.prefs.edit().putString("Address", address).apply();
+                        LoginActivity.prefs.edit().putString("Phone", phone).commit();
+                        LoginActivity.prefs.edit().putString("Address", address).commit();
+
+                        updateSuccess = true;
+                    }
+
+                    else
+                        updateSuccess = false;
+
+
+                }catch(JSONException e){
+                    e.printStackTrace();
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Log.i("Inside PostExecute", "True");
+            super.onPostExecute(result);
+
+            if (updateProgress != null && updateProgress.isShowing() == true) {
+                updateProgress.hide();
+                updateProgress.cancel();
+            }
+
+            Message msg = new Message();
+            msg.arg1=0;
+            if(updateSuccess)
+                msg.obj = "Updated details successfully";
+            else
+                msg.obj = "Error in updating details";
+            MyAccountFragment.msgHandler.sendMessage(msg);
+        }
+
+    }
 
 
 }
