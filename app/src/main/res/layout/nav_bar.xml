@@ -1,0 +1,119 @@
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:facebook="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Framelayout to display Fragments -->
+
+
+    <FrameLayout
+        android:id="@+id/frame_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <!-- Listview to display slider menu -->
+
+    <RelativeLayout
+        android:id="@+id/left_drawer"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:orientation="vertical"
+        android:clickable="true"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="103dp"
+                android:orientation="vertical"
+                android:gravity="left"
+                android:background="@color/myNavigationBarProPicBackgroundColor">
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/frame_profile_pic">
+
+                    <ImageView
+                                android:layout_width="80dp"
+                                android:layout_height="45dp"
+                                android:id="@+id/profilepic"
+                                android:layout_marginLeft="0dp"
+                                android:layout_marginRight="0dp"
+                                android:layout_alignParentTop="true"
+                                android:clickable="false"
+                                android:layout_marginTop="20dp"
+                                android:src="@drawable/profilegrey"
+                                android:background="@color/myNavigationBarProPicBackgroundColor" />-->
+
+                    <com.facebook.widget.ProfilePictureView
+                        android:id="@+id/profilepic_facebook"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:layout_marginRight="0dp"
+                        android:layout_alignParentTop="true"
+                        android:clickable="false"
+                        android:paddingTop="2dp"
+                        android:layout_marginTop="10dp"
+                        facebook:preset_size="small"
+                        android:layout_marginLeft="10dp"
+                        />
+
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/profilepic_google"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="0dp"
+                        android:layout_alignParentTop="true"
+                        android:clickable="false"
+                        android:paddingTop="2dp"
+                        android:layout_marginTop="10dp" />
+
+                </FrameLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:id="@+id/profilepic_name"
+                    android:layout_marginLeft="10dp"
+                    android:layout_alignLeft="@+id/frame_profile_pic"
+                    android:layout_marginRight="0dp"
+                    android:clickable="false"
+                    android:text="Username"
+                    android:paddingBottom="5dp"
+                    android:textSize="18dp"
+                    android:paddingTop="5dp"
+
+                    android:layout_marginBottom="5dp"
+                    android:layout_below="@+id/frame_profile_pic"
+                    android:textColor="#000"
+                    android:background="@color/myNavigationBarProPicBackgroundColor"/>
+
+            </RelativeLayout>
+            <ListView
+                android:id="@+id/list_slidermenu"
+                android:layout_width="240dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="start"
+                android:choiceMode="singleChoice"
+                android:divider="#00123456"
+                android:paddingTop="14dp"
+                android:layout_below="@+id/profilepic_name"
+                android:dividerHeight="1dp"
+                android:listSelector="#888888"
+                android:background="#FFFFFF">
+            </ListView>
+        </LinearLayout>
+
+    </RelativeLayout>
+</android.support.v4.widget.DrawerLayout>

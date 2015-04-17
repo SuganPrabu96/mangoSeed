@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+    <shape android:shape="rectangle">
+        <gradient
+            android:startColor="@color/myDrawerItemSelectedColor"
+            android:endColor="@color/myDrawerItemSelectedColor"
+            android:angle="0"
+            />
+        <corners
+            android:bottomLeftRadius="100dp"
+            android:topLeftRadius="100dp"
+            android:topRightRadius="100dp"
+            android:bottomRightRadius="100dp"/>
+        <size android:height="10dp"
+            android:width="10dp"/>
+
+    </shape>
+</inset>
