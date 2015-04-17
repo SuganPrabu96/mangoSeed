@@ -19,6 +19,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -46,6 +47,7 @@ import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.widget.ProfilePictureView;
 
@@ -829,6 +831,7 @@ public class Master extends ActionBarActivity {
         private RecyclerView categoryRecycleView, subcategoryRecycleView, productsRecyclerView;
         private CategoryCardAdapter mAdapter2;
         private SubcategoryCardAdapter mAdapter3;
+        private SwipeRefreshLayout swipeRefreshLayoutProducts;
 
         public ProductsFragment() {
         }
@@ -841,6 +844,17 @@ public class Master extends ActionBarActivity {
             for (int i = 0; i < numCategories; i++) {
                 listOfCateg.add(i, new CategoryCardClass(categoryName.get(i), 0));  //TODO change this to image URL received from db
             }
+
+            swipeRefreshLayoutProducts = (SwipeRefreshLayout) rootView1.findViewById(R.id.swipeToRefresh_Products);
+
+            swipeRefreshLayoutProducts.setColorSchemeColors(R.color.primary,R.color.darkGreen);
+
+            swipeRefreshLayoutProducts.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    refreshItems();
+                }
+            });
 
             categoryRecycleView = (RecyclerView) rootView1.findViewById(R.id.my_recycler_view2);
             categoryRecycleView.setHasFixedSize(true);
@@ -929,6 +943,16 @@ public class Master extends ActionBarActivity {
             return rootView1;
         }
 
+        private void refreshItems(){
+
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getActivity().getApplicationContext(),"Refreshing",Toast.LENGTH_SHORT).show();
+                    swipeRefreshLayoutProducts.setRefreshing(false);
+                }
+            });
+        }
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
