@@ -15,6 +15,9 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/confirmChangesSubmit"/>
+        android:id="@+id/confirmChangesSubmit"
+        android:text="Confirm changes"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"/>
 
 </LinearLayout>

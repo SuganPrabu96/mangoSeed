@@ -10,6 +10,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
@@ -176,6 +177,10 @@ public class LocationFromMap extends FragmentActivity
                     LoginActivity.prefs.edit().putString("Latitude",String.valueOf(location[0])).commit();
                     LoginActivity.prefs.edit().putString("Longitude",String.valueOf(location[1])).commit();
 
+                    Message msg = new Message();
+                    msg.arg1=1;
+                    msg.arg2=1;
+                    Master.locationHandler.sendMessage(msg);
                     finish();
 
                 }
@@ -213,6 +218,15 @@ public class LocationFromMap extends FragmentActivity
             }
 
         });
+    }
+
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        Message msg = new Message();
+        msg.arg1=1;
+        msg.arg2=1;
+        Master.locationHandler.sendMessage(msg);
     }
 
    /* @Override

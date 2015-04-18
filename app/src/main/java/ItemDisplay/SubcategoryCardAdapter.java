@@ -1,6 +1,7 @@
 package ItemDisplay;
 
 import android.content.Context;
+import android.os.Message;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
+import e_commerce.e_commerce.Master;
 import e_commerce.e_commerce.R;
 
 /**
@@ -38,6 +40,16 @@ public class SubcategoryCardAdapter extends RecyclerView.Adapter<ViewHolderSubca
 
         viewHolder.subcategname.setText(item.getSubcategtitle());
         viewHolder.subcategimg.setImageResource(item.getSubcategimg());
+
+        viewHolder.itemView.findViewById(R.id.card_view3).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Message subcategoryMsg = new Message();
+                subcategoryMsg.arg1=2;
+                subcategoryMsg.arg2=position;
+                Master.ProductsFragment.subcategoryMsgHandler.sendMessage(subcategoryMsg);
+            }
+        });
     }
 
     @Override

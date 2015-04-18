@@ -91,6 +91,9 @@ public class Master extends ActionBarActivity {
     public static ArrayList<String[]> subcategoryName;
     private final String categoriesURL = "http://grokart.ueuo.com/listCategories.php";
     private static final String updateDetailsURL = "http://grokart.ueuo.com/editInfo.php";
+    private final String locationURL = "http://grokart.ueuo.com/latlong.php";
+    private static final String itemsURL = "http://grokart.ueuo.com/catProds.php";
+    private static final String itemsImagesURL = "http://grokart.ueuo.com/prodImage.php";
     public FragmentTransaction fragmentTransaction;
     public Dialog locationDialog;
     public String[] location = {"Chennai", "Adyar"}; // location[0] is city and location[1] is area
@@ -100,8 +103,15 @@ public class Master extends ActionBarActivity {
     private ListView drawerList;
     private ActionBarDrawerToggle mDrawerToggle;
     private String productsJSON;
+    private String locationReturnedJSON;
+    private static String itemsReturnedJSON, itemsURLReturnedJSON;
     private static String updateDetailsReturnedJSON;
-    public static ProgressDialog updateProgress;
+    public static ProgressDialog updateProgress, locationProgress, loadItemsProgress;
+    public static Handler locationHandler;
+    String[] loc_city = {"Chennai"};
+    String[] loc_area = {"Adyar", "Ambattur", "Anna Nagar"};
+    String[] loc_lat = {"13.0063","13.0983","13.0846"};
+    String[] loc_long = {"80.2574","80.1622","80.2179"};
 
     // TODO change the initial value of location based on Shared prefs
 
@@ -115,6 +125,8 @@ public class Master extends ActionBarActivity {
         categoryName = new ArrayList();
 
         updateProgress = new ProgressDialog(Master.this);
+        locationProgress = new ProgressDialog(Master.this);
+        loadItemsProgress = new ProgressDialog(Master.this);
 
         facebookProfileIcon = (ProfilePictureView) findViewById(R.id.profilepic_facebook);
         profileIconText = (TextView) findViewById(R.id.profilepic_name);
@@ -122,35 +134,29 @@ public class Master extends ActionBarActivity {
         profileIcon = (ImageView) findViewById(R.id.profilepic);
         googleProfileIcon = (CircleImageView) findViewById(R.id.profilepic_google);
 
-        if(modeOfLogin.equals("Facebook")) {
+        if (modeOfLogin.equals("Facebook")) {
             profileIcon.setVisibility(View.INVISIBLE);
             googleProfileIcon.setVisibility((View.INVISIBLE));
             facebookProfileIcon.setVisibility(View.VISIBLE);
-        }
-
-        else if(modeOfLogin.equals("Google")) {
+        } else if (modeOfLogin.equals("Google")) {
             googleProfileIcon.setImageBitmap(LoginActivity.bmImage);
             profileIconText.setText(LoginActivity.profileText);
             profileIcon.setVisibility(View.INVISIBLE);
             facebookProfileIcon.setVisibility(View.INVISIBLE);
             googleProfileIcon.setVisibility(View.VISIBLE);
 
-        }
-
-        else {
+        } else {
             facebookProfileIcon.setVisibility(View.INVISIBLE);
             googleProfileIcon.setVisibility(View.INVISIBLE);
             profileIcon.setVisibility(View.VISIBLE);
-            profileIconText.setText(LoginActivity.prefs.getString("Email",""));
+            profileIconText.setText(LoginActivity.prefs.getString("Email", ""));
         }
 
         actionBar = getSupportActionBar();
 
-        Log.i("areaname", LoginActivity.prefs.getString("areaname", ""));
-        if(!LoginActivity.prefs.getString("areaname","").equals(""))
-            actionBar.setTitle(LoginActivity.prefs.getString("areaname",""));
-        else
-            actionBar.setTitle(location[1]);
+        //if(!LoginActivity.prefs.getString("LoginStatus","").equals("Logged in")) {
+
+        getLocationForItems();
 
         Window window = Master.this.getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -160,8 +166,6 @@ public class Master extends ActionBarActivity {
         }
 
         SupportFragmentManager = getSupportFragmentManager();
-
-        new LoadProductsList().execute();
 
         List<NavDrawerItem> datalist = data.getNavDrawerItems();
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -201,6 +205,127 @@ public class Master extends ActionBarActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setIcon(R.drawable.ic_drawer);
         mDrawerToggle.syncState();
+
+    }
+
+    private void getLocationForItems(){
+        {  locationDialog = new Dialog(Master.this);
+            locationDialog.setContentView(R.layout.choose_location);
+            locationDialog.setCancelable(false);
+            locationDialog.getWindow().setLayout(WindowManager.LayoutParams.FILL_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+            locationDialog.setTitle("Location");
+            locationDialog.show();
+
+            final Spinner city = (Spinner) locationDialog.findViewById(R.id.spinnerLocationCity);
+            final Spinner area = (Spinner) locationDialog.findViewById(R.id.spinnerLocationArea);
+
+            final RadioButton selectFromMap = (RadioButton) locationDialog.findViewById(R.id.radio_select_from_map);
+
+            ArrayAdapter<String> adapter_area = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, loc_area);
+            area.setAdapter(adapter_area);
+
+            ArrayAdapter<String> adapter_city = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, loc_city);
+            city.setAdapter(adapter_city);
+
+            for (int i = 0; i < city.getCount(); i++) {
+                if (city.getItemAtPosition(i).equals(location[0])) {
+                    city.setSelection(i);
+                    break;
+                }
+            }
+
+            for (int i = 0; i < area.getCount(); i++) {
+                if (area.getItemAtPosition(i).equals(location[1])) {
+                    area.setSelection(i);
+                    Log.i("selected", String.valueOf(i));
+                    break;
+                }
+            }
+
+            if (!LoginActivity.prefs.getString("city", "").equals("")) {
+                city.setSelection(Integer.parseInt(LoginActivity.prefs.getString("city", "")));
+                Log.i("city", LoginActivity.prefs.getString("city", ""));
+            }
+
+            if (!LoginActivity.prefs.getString("area", "").equals("")) {
+                area.setSelection(Integer.parseInt(LoginActivity.prefs.getString("area", "")));
+                Log.i("area", LoginActivity.prefs.getString("area", ""));
+            }
+
+            location[0] = city.getSelectedItem().toString();
+            location[1] = area.getSelectedItem().toString();
+
+            actionBar.setTitle(location[1]);
+
+            //TODO set the default values as the existing values which the user had selected earlier
+
+            city.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    location[0] = city.getSelectedItem().toString();
+                    LoginActivity.prefs.edit().putString("city", String.valueOf(id)).apply();
+                    LoginActivity.prefs.edit().putString("city", String.valueOf(id)).commit();
+
+                    LoginActivity.prefs.edit().putString("cityname", location[0]).apply();
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+
+            area.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    location[1] = area.getSelectedItem().toString();
+                    actionBar.setTitle(location[1]);
+                    LoginActivity.prefs.edit().putString("area", String.valueOf(id)).apply();
+                    LoginActivity.prefs.edit().putString("area", String.valueOf(id)).commit();
+
+                    Log.i("location[1]", location[1]);
+                    LoginActivity.prefs.edit().putString("areaname", location[1]).apply();
+                    Log.i("areaname", LoginActivity.prefs.getString("areaname", ""));
+
+                    locationDialog.hide();
+                    locationDialog.dismiss();
+
+                    new LocationDetails().execute(loc_lat[position], loc_long[position], LoginActivity.session);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+
+            selectFromMap.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (selectFromMap.isChecked()) {
+                        locationDialog.dismiss();
+                        locationDialog.hide();
+                    }
+                    getLocationFromMap();
+                }
+            });
+
+            Log.i("areaname", LoginActivity.prefs.getString("areaname", ""));
+            if (!LoginActivity.prefs.getString("areaname", "").equals(""))
+                actionBar.setTitle(LoginActivity.prefs.getString("areaname", ""));
+            else
+                actionBar.setTitle(location[1]);
+
+            locationHandler = new Handler() {
+                public void handleMessage(Message msg) {
+                    if (msg.arg1 == 1) {
+                        if (msg.arg2 == 1) {
+                            new LocationDetails().execute(String.valueOf(LocationFromMap.location[0]), String.valueOf(LocationFromMap.location[1]), LoginActivity.session);
+                        }
+                    }
+                }
+            };
+        }
 
     }
 
@@ -468,7 +593,7 @@ public class Master extends ActionBarActivity {
         else if (id == R.id.menu_master_location) {
 
             String[] loc_city = {"Chennai"};
-            String[] loc_area = {"Adyar", "Ambattur", "Anna Nagar", "Ashok Nagar", "Avadi", "Chrompet", "Guindy", "K.K Nagar", "Kilpauk", "Kodambakkam", "Koyambedu", "Mylapore", "Nungambakkam", "Pallavaram", "Saidapet", "Tambaram", "T Nagar", "Vadapalani", "Velachery"};
+            String[] loc_area = {"Adyar", "Ambattur", "Anna Nagar"};
 
             locationDialog = new Dialog(Master.this);
             locationDialog.setContentView(R.layout.choose_location);
@@ -827,6 +952,7 @@ public class Master extends ActionBarActivity {
         public static Handler msgHandler;
         private Dialog confirmChangesDialog;
         private boolean confirmChangesAuth;
+        private Handler confirmChangesMsgHandler;
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -867,11 +993,11 @@ public class Master extends ActionBarActivity {
 
             submit.setVisibility(View.INVISIBLE);
 
-            name.setText(LoginActivity.prefs.getString("Name",""));
-            email.setText(LoginActivity.prefs.getString("Email",""));
-            phone.setText(LoginActivity.prefs.getString("Phone",""));
-            address.setText(LoginActivity.prefs.getString("Address",""));
-            password.setText(LoginActivity.prefs.getString("Password",""));
+            name.setText(LoginActivity.prefs.getString("Name", ""));
+            email.setText(LoginActivity.prefs.getString("Email", ""));
+            phone.setText(LoginActivity.prefs.getString("Phone", ""));
+            address.setText(LoginActivity.prefs.getString("Address", ""));
+            password.setText(LoginActivity.prefs.getString("Password", ""));
 
             editNewName.setHint(name.getText());
             editNewEmail.setHint(email.getText());
@@ -880,7 +1006,7 @@ public class Master extends ActionBarActivity {
             editNewPassword.setHint(password.getText());
 
 
-            Log.i("Name",LoginActivity.prefs.getString("Name",""));
+            Log.i("Name", LoginActivity.prefs.getString("Name", ""));
 
             name.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -936,16 +1062,15 @@ public class Master extends ActionBarActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if(name.getText()!=s.toString()) {
+                    if (name.getText() != s.toString()) {
                         name.setText(s.toString());
                         editNewName.setHint(s.toString());
                         submit.setVisibility(View.VISIBLE);
-                    }
-                    else if(LoginActivity.prefs.getString("Name","").equals(name.getText())&&
-                            LoginActivity.prefs.getString("Email","").equals(email.getText())&&
-                            LoginActivity.prefs.getString("Address","").equals(address.getText())&&
-                            LoginActivity.prefs.getString("Phone","").equals(phone.getText())&&
-                            LoginActivity.prefs.getString("Password","").equals(password.getText()))
+                    } else if (LoginActivity.prefs.getString("Name", "").equals(name.getText()) &&
+                            LoginActivity.prefs.getString("Email", "").equals(email.getText()) &&
+                            LoginActivity.prefs.getString("Address", "").equals(address.getText()) &&
+                            LoginActivity.prefs.getString("Phone", "").equals(phone.getText()) &&
+                            LoginActivity.prefs.getString("Password", "").equals(password.getText()))
                         submit.setVisibility(View.INVISIBLE);
 
                 }
@@ -964,16 +1089,15 @@ public class Master extends ActionBarActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if(email.getText()!=s.toString()) {
+                    if (email.getText() != s.toString()) {
                         email.setText(s.toString());
                         editNewEmail.setHint(s.toString());
                         submit.setVisibility(View.VISIBLE);
-                    }
-                    else if(LoginActivity.prefs.getString("Name","").equals(name.getText())&&
-                            LoginActivity.prefs.getString("Email","").equals(email.getText())&&
-                            LoginActivity.prefs.getString("Address","").equals(address.getText())&&
-                            LoginActivity.prefs.getString("Phone","").equals(phone.getText())&&
-                            LoginActivity.prefs.getString("Password","").equals(password.getText()))
+                    } else if (LoginActivity.prefs.getString("Name", "").equals(name.getText()) &&
+                            LoginActivity.prefs.getString("Email", "").equals(email.getText()) &&
+                            LoginActivity.prefs.getString("Address", "").equals(address.getText()) &&
+                            LoginActivity.prefs.getString("Phone", "").equals(phone.getText()) &&
+                            LoginActivity.prefs.getString("Password", "").equals(password.getText()))
                         submit.setVisibility(View.INVISIBLE);
                 }
             });
@@ -991,16 +1115,15 @@ public class Master extends ActionBarActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if(phone.getText()!=s.toString()) {
+                    if (phone.getText() != s.toString()) {
                         phone.setText(s.toString());
                         editNewPhone.setHint(s.toString());
                         submit.setVisibility(View.VISIBLE);
-                    }
-                    else if(LoginActivity.prefs.getString("Name","").equals(name.getText())&&
-                            LoginActivity.prefs.getString("Email","").equals(email.getText())&&
-                            LoginActivity.prefs.getString("Address","").equals(address.getText())&&
-                            LoginActivity.prefs.getString("Phone","").equals(phone.getText())&&
-                            LoginActivity.prefs.getString("Password","").equals(password.getText()))
+                    } else if (LoginActivity.prefs.getString("Name", "").equals(name.getText()) &&
+                            LoginActivity.prefs.getString("Email", "").equals(email.getText()) &&
+                            LoginActivity.prefs.getString("Address", "").equals(address.getText()) &&
+                            LoginActivity.prefs.getString("Phone", "").equals(phone.getText()) &&
+                            LoginActivity.prefs.getString("Password", "").equals(password.getText()))
                         submit.setVisibility(View.INVISIBLE);
                 }
             });
@@ -1018,16 +1141,15 @@ public class Master extends ActionBarActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if(address.getText()!=s.toString()) {
+                    if (address.getText() != s.toString()) {
                         address.setText(s.toString());
                         editNewAddress.setText(s.toString());
                         submit.setVisibility(View.VISIBLE);
-                    }
-                    else if(LoginActivity.prefs.getString("Name","").equals(name.getText())&&
-                            LoginActivity.prefs.getString("Email","").equals(email.getText())&&
-                            LoginActivity.prefs.getString("Address","").equals(address.getText())&&
-                            LoginActivity.prefs.getString("Phone","").equals(phone.getText())&&
-                            LoginActivity.prefs.getString("Password","").equals(password.getText()))
+                    } else if (LoginActivity.prefs.getString("Name", "").equals(name.getText()) &&
+                            LoginActivity.prefs.getString("Email", "").equals(email.getText()) &&
+                            LoginActivity.prefs.getString("Address", "").equals(address.getText()) &&
+                            LoginActivity.prefs.getString("Phone", "").equals(phone.getText()) &&
+                            LoginActivity.prefs.getString("Password", "").equals(password.getText()))
                         submit.setVisibility(View.INVISIBLE);
                 }
             });
@@ -1045,16 +1167,15 @@ public class Master extends ActionBarActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if(password.getText()!=s.toString()) {
+                    if (password.getText() != s.toString()) {
                         password.setText(s.toString());
                         editNewPassword.setHint(s.toString());
                         submit.setVisibility(View.VISIBLE);
-                    }
-                    else if(LoginActivity.prefs.getString("Name","").equals(name.getText())&&
-                            LoginActivity.prefs.getString("Email","").equals(email.getText())&&
-                            LoginActivity.prefs.getString("Address","").equals(address.getText())&&
-                            LoginActivity.prefs.getString("Phone","").equals(phone.getText())&&
-                            LoginActivity.prefs.getString("Password","").equals(password.getText()))
+                    } else if (LoginActivity.prefs.getString("Name", "").equals(name.getText()) &&
+                            LoginActivity.prefs.getString("Email", "").equals(email.getText()) &&
+                            LoginActivity.prefs.getString("Address", "").equals(address.getText()) &&
+                            LoginActivity.prefs.getString("Phone", "").equals(phone.getText()) &&
+                            LoginActivity.prefs.getString("Password", "").equals(password.getText()))
                         submit.setVisibility(View.INVISIBLE);
                 }
             });
@@ -1066,18 +1187,18 @@ public class Master extends ActionBarActivity {
                     confirmChangesDialog = new Dialog(rootView.getContext());
                     confirmChangesDialog();
 
-                    Handler confirimChangesMsgHandler = new Handler() {
+                    confirmChangesMsgHandler = new Handler() {
                         public void handleMessage(Message msg) {
                             if (msg.arg1 == 1) {
-                                if(msg.arg2 == 0)
+                                if (msg.arg2 == 0)
                                     confirmChangesAuth = false;
-                                else if(msg.arg2 == 1)
+                                else if (msg.arg2 == 1)
                                     confirmChangesAuth = true;
                             }
                         }
                     };
 
-                    if(confirmChangesAuth == true) {
+                    if (confirmChangesAuth == true) {
 
                         if (LoginActivity.prefs.getString("Password", "").equals(editNewPassword.getText().toString()))
                             new ChangeDetailsTask().execute(name.getText().toString(), email.getText().toString(),
@@ -1085,10 +1206,8 @@ public class Master extends ActionBarActivity {
                         else
                             new ChangeDetailsTask().execute(name.getText().toString(), email.getText().toString(), ""
                                     , address.getText().toString(), phone.getText().toString());
-                    }
-
-                    else
-                        Toast.makeText(rootView.getContext(),"Wrong password",Toast.LENGTH_SHORT).show();
+                    } else
+                        Toast.makeText(rootView.getContext(), "Wrong password", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -1134,10 +1253,9 @@ public class Master extends ActionBarActivity {
 
             msgHandler = new Handler() {
                 public void handleMessage(Message msg) {
-                    if(msg.arg1==0)
-                        Toast.makeText(rootView.getContext(), (CharSequence) msg.obj,Toast.LENGTH_SHORT).show();
-                    if(msg.obj.equals("Updated details successfully"))
-                    {
+                    if (msg.arg1 == 0)
+                        Toast.makeText(rootView.getContext(), (CharSequence) msg.obj, Toast.LENGTH_SHORT).show();
+                    if (msg.obj.equals("Updated details successfully")) {
                         editNewName.setVisibility(View.INVISIBLE);
                         editNewEmail.setVisibility(View.INVISIBLE);
                         editNewAddress.setVisibility(View.INVISIBLE);
@@ -1156,7 +1274,7 @@ public class Master extends ActionBarActivity {
             return rootView;
         }
 
-        private void confirmChangesDialog(){
+        private void confirmChangesDialog() {
             final EditText confirmPassword;
             final Button confirmChangesSubmit;
 
@@ -1172,13 +1290,12 @@ public class Master extends ActionBarActivity {
                 @Override
                 public void onClick(View v) {
                     Message msg = new Message();
-                    msg.arg1=1;
-                    if(confirmPassword.getText().toString().equals(LoginActivity.prefs.getString("Password",""))){
-                        msg.arg2=1;
-                    }
-                    else
-                        msg.arg2=0;
-                    MyAccountFragment.msgHandler.sendMessage(msg);
+                    msg.arg1 = 1;
+                    if (confirmPassword.getText().toString().equals(LoginActivity.prefs.getString("Password", ""))) {
+                        msg.arg2 = 1;
+                    } else
+                        msg.arg2 = 0;
+                    confirmChangesMsgHandler.sendMessage(msg);
                 }
             });
 
@@ -1187,11 +1304,11 @@ public class Master extends ActionBarActivity {
 
     public static class ProductsFragment extends Fragment {
 
-        public static Handler categoryMsgHandler;
+        public static Handler categoryMsgHandler, subcategoryMsgHandler;
         TextView categoryCat, subCategoryCat, productsCat, subCategorySubCat, productsSubCat, productsProduct;
-        ArrayList<ItemDetailsClass> listOfItems = new ArrayList<>();
+        ArrayList<ItemDetailsClass> listOfItems;
         ArrayList<CategoryCardClass> listOfCateg = new ArrayList<>();
-        ArrayList<SubcategoryCardClass> listOfSubCateg = new ArrayList<>();
+        ArrayList<SubcategoryCardClass> listOfSubCateg;
         private CardAdapter mAdapter1;
         private RecyclerView categoryRecycleView, subcategoryRecycleView, productsRecyclerView;
         private CategoryCardAdapter mAdapter2;
@@ -1206,14 +1323,14 @@ public class Master extends ActionBarActivity {
                                  Bundle savedInstanceState) {
             final View rootView1 = inflater.inflate(R.layout.fragment_category, container, false);
 
-            if(numCategories>0)
+            if (numCategories > 0)
                 for (int i = 0; i < numCategories; i++) {
                     listOfCateg.add(i, new CategoryCardClass(categoryName.get(i), 0));  //TODO change this to image URL received from db
                 }
 
             swipeRefreshLayoutProducts = (SwipeRefreshLayout) rootView1.findViewById(R.id.swipeToRefresh_Products);
 
-            swipeRefreshLayoutProducts.setColorSchemeColors(R.color.primary,R.color.darkGreen);
+            swipeRefreshLayoutProducts.setColorSchemeColors(R.color.primary, R.color.darkGreen);
 
             swipeRefreshLayoutProducts.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
@@ -1247,14 +1364,34 @@ public class Master extends ActionBarActivity {
                 public void handleMessage(Message msg) {
                     if (msg.arg1 == 1) {
 
-                        Log.i("Inside handler", "True");
+                        Log.i("Arg2", String.valueOf(msg.arg2));
 
-                        if(listOfSubCateg.isEmpty()) {
+                        listOfSubCateg = new ArrayList<>();
+
                             for (int i = 0; i < numSubCategories[msg.arg2]; i++) {
                                 listOfSubCateg.add(i, new SubcategoryCardClass(subcategoryName.get(msg.arg2)[i], 0));
                                 //TODO change this to image URL received from db
                             }
-                        }
+
+                        mAdapter3 = new SubcategoryCardAdapter(listOfSubCateg, rootView1.getContext());
+                        subcategoryRecycleView.setAdapter(mAdapter3);
+
+                        rootView1.findViewById(R.id.category).setVisibility(View.INVISIBLE);
+                        rootView1.findViewById(R.id.subcategory).setVisibility(View.VISIBLE);
+                        rootView1.findViewById(R.id.products).setVisibility(View.INVISIBLE);
+                    }
+                }
+            };
+
+            subcategoryMsgHandler = new Handler() {
+                public void handleMessage(Message msg) {
+                    if (msg.arg1 == 2) {
+
+                        Log.i("Arg2", String.valueOf(msg.arg2));
+
+                        listOfItems = new ArrayList<>();
+
+                        new LoadItems().execute();
 
                         mAdapter3 = new SubcategoryCardAdapter(listOfSubCateg, rootView1.getContext());
                         subcategoryRecycleView.setAdapter(mAdapter3);
@@ -1311,12 +1448,12 @@ public class Master extends ActionBarActivity {
             return rootView1;
         }
 
-        private void refreshItems(){
+        private void refreshItems() {
 
             new Handler().post(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(getActivity().getApplicationContext(),"Refreshing",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity().getApplicationContext(), "Refreshing", Toast.LENGTH_SHORT).show();
                     swipeRefreshLayoutProducts.setRefreshing(false);
                 }
             });
@@ -1331,12 +1468,12 @@ public class Master extends ActionBarActivity {
         }
     }
 
-    public class LoadProductsList extends AsyncTask<Void,Void,Void> {
+    public class LoadCatSubCat extends AsyncTask<Void, Void, Void> {
 
         ProgressDialog p1 = new ProgressDialog(Master.this);
 
         @Override
-        protected void onPreExecute(){
+        protected void onPreExecute() {
             super.onPreExecute();
 
             p1.setTitle("Loading Products List...");
@@ -1346,14 +1483,14 @@ public class Master extends ActionBarActivity {
         }
 
         @Override
-        protected Void doInBackground(Void... arg){
+        protected Void doInBackground(Void... arg) {
 
             ServiceHandler jsonParser = new ServiceHandler();
-            productsJSON=jsonParser.makeServiceCall(categoriesURL,ServiceHandler.POST,null);
-            if(productsJSON!=null){
-                try{
+            productsJSON = jsonParser.makeServiceCall(categoriesURL, ServiceHandler.POST, null);
+            if (productsJSON != null) {
+                try {
                     JSONObject productsListJSON = new JSONObject(productsJSON);
-                    if(productsListJSON.getString("success").equals("true")) {
+                    if (productsListJSON.getString("success").equals("true")) {
                         numCategories = Integer.parseInt(productsListJSON.getString("numCategories"));
                         JSONArray list = new JSONArray(String.valueOf(productsListJSON.getJSONArray("list")));
 
@@ -1362,9 +1499,9 @@ public class Master extends ActionBarActivity {
                         subcategoryID = new ArrayList<>();
                         subcategoryName = new ArrayList<>();
 
-                        Log.i("list",String.valueOf(list));
+                        Log.i("list", String.valueOf(list));
 
-                        for(int i=0;i<numCategories;i++){
+                        for (int i = 0; i < numCategories; i++) {
                             JSONObject catObj = list.getJSONObject(i);
                             JSONArray sub = catObj.getJSONArray("subcategories");
                             categoryID[i] = catObj.getInt("ID");
@@ -1372,21 +1509,21 @@ public class Master extends ActionBarActivity {
                             numSubCategories[i] = catObj.getInt("numSubcategories");
                             int[] subIds = new int[numSubCategories[i]];
                             String[] subNames = new String[numSubCategories[i]];
-                            for(int j=0;j<numSubCategories[i];j++) {
+                            for (int j = 0; j < numSubCategories[i]; j++) {
                                 subIds[j] = sub.getJSONObject(j).getInt("subID");
                                 subNames[j] = sub.getJSONObject(j).getString("name");
                             }
-                            subcategoryID.add(i,subIds);
-                            subcategoryName.add(i,subNames);
+                            subcategoryID.add(i, subIds);
+                            subcategoryName.add(i, subNames);
                             Log.i("subId", String.valueOf(subcategoryID.size()));
                             Log.i("subCat", String.valueOf(subcategoryName.size()));
 
                         }
-                        Log.i("Loaded","Fully done");
+                        Log.i("Loaded", "Fully done");
                     }
 
 
-                }catch(JSONException e){
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
@@ -1395,11 +1532,10 @@ public class Master extends ActionBarActivity {
         }
 
         @Override
-        protected void onPostExecute(Void result){
+        protected void onPostExecute(Void result) {
             super.onPostExecute(result);
 
-            if(p1!=null && p1.isShowing())
-            {
+            if (p1 != null && p1.isShowing()) {
                 p1.hide();
                 p1.dismiss();
             }
@@ -1407,9 +1543,9 @@ public class Master extends ActionBarActivity {
 
     }
 
-    public static class ChangeDetailsTask extends AsyncTask<String,Void,String> {
+    public static class ChangeDetailsTask extends AsyncTask<String, Void, String> {
 
-        String name,email,password,address,phone;
+        String name, email, password, address, phone;
         boolean updateSuccess = false;
 
         @Override
@@ -1422,27 +1558,27 @@ public class Master extends ActionBarActivity {
 
         @Override
         protected String doInBackground(String... params) {
-            Log.i("Inside Background","True");
+            Log.i("Inside Background", "True");
 
-            name=params[0];
-            email=params[1];
-            password=params[2];
-            address=params[3];
-            phone=params[4];
+            name = params[0];
+            email = params[1];
+            password = params[2];
+            address = params[3];
+            phone = params[4];
 
             List<NameValuePair> paramsUpdate = new ArrayList<NameValuePair>();
-            paramsUpdate.add(new BasicNameValuePair("ID",LoginActivity.sessionId));
-            paramsUpdate.add(new BasicNameValuePair("email",email));
-            paramsUpdate.add(new BasicNameValuePair("name",name));
-            paramsUpdate.add(new BasicNameValuePair("password",password));
-            paramsUpdate.add(new BasicNameValuePair("address",address));
-            paramsUpdate.add(new BasicNameValuePair("telephone",phone));
+            paramsUpdate.add(new BasicNameValuePair("session", LoginActivity.session));
+            paramsUpdate.add(new BasicNameValuePair("email", email));
+            paramsUpdate.add(new BasicNameValuePair("name", name));
+            paramsUpdate.add(new BasicNameValuePair("password", password));
+            paramsUpdate.add(new BasicNameValuePair("address", address));
+            paramsUpdate.add(new BasicNameValuePair("telephone", phone));
             ServiceHandler jsonParser = new ServiceHandler();
-            updateDetailsReturnedJSON=jsonParser.makeServiceCall(updateDetailsURL,ServiceHandler.POST,paramsUpdate);
-            if(updateDetailsReturnedJSON!=null){
-                try{
+            updateDetailsReturnedJSON = jsonParser.makeServiceCall(updateDetailsURL, ServiceHandler.POST, paramsUpdate);
+            if (updateDetailsReturnedJSON != null) {
+                try {
                     JSONObject updateJSON = new JSONObject(updateDetailsReturnedJSON);
-                    if(updateJSON.getString("success").equals("true")) {
+                    if (updateJSON.getString("success").equals("true")) {
 
                         LoginActivity.customerEmail = email;
                         LoginActivity.customerPassword = password;
@@ -1462,13 +1598,11 @@ public class Master extends ActionBarActivity {
                         LoginActivity.prefs.edit().putString("Address", address).commit();
 
                         updateSuccess = true;
-                    }
-
-                    else
+                    } else
                         updateSuccess = false;
 
 
-                }catch(JSONException e){
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
@@ -1487,8 +1621,8 @@ public class Master extends ActionBarActivity {
             }
 
             Message msg = new Message();
-            msg.arg1=0;
-            if(updateSuccess)
+            msg.arg1 = 0;
+            if (updateSuccess)
                 msg.obj = "Updated details successfully";
             else
                 msg.obj = "Error in updating details";
@@ -1496,7 +1630,166 @@ public class Master extends ActionBarActivity {
         }
 
     }
+        public class LocationDetails extends AsyncTask<String, Void, String> {
 
+            private boolean locationDetailsSuccess = false;
+            @Override
+            protected void onPreExecute() {
+                Log.i("Inside PreExecute", "True");
+                locationProgress.setTitle("Updating");
+                locationProgress.setCancelable(false);
+                locationProgress.show();
+            }
+
+            @Override
+            protected String doInBackground(String... params) {
+                Log.i("Inside Background", "True");
+
+                List<NameValuePair> paramsLocation = new ArrayList<NameValuePair>();
+
+                paramsLocation.add(new BasicNameValuePair("latitude",params[0]));
+                paramsLocation.add(new BasicNameValuePair("longitude",params[1]));
+                paramsLocation.add(new BasicNameValuePair("session", LoginActivity.session));
+                ServiceHandler jsonParser = new ServiceHandler();
+                locationReturnedJSON = jsonParser.makeServiceCall(locationURL, ServiceHandler.POST, paramsLocation);
+                if (locationReturnedJSON != null) {
+                    try{
+                        Log.i("locationReturnedJSON",locationReturnedJSON);
+                        JSONObject locationJSON = new JSONObject(locationReturnedJSON);
+                        if(locationJSON.getString("success").equals("true")){
+                            locationDetailsSuccess = true;
+                            //TODO load items from this place
+                        }
+                        else
+                            locationDetailsSuccess = false;
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(String result) {
+                Log.i("Inside PostExecute", "True");
+                super.onPostExecute(result);
+                if(locationProgress!=null && locationProgress.isShowing())
+                {
+                    locationProgress.hide();
+                    locationProgress.dismiss();
+                }
+
+                if(!locationDetailsSuccess)
+                    Toast.makeText(getApplicationContext(),"Unable to load products",Toast.LENGTH_SHORT).show();
+                else
+                    new LoadCatSubCat().execute();
+            }
+
+        }
+
+    public static class LoadItems extends AsyncTask<Void, Void, String> {
+
+        @Override
+        protected void onPreExecute() {
+            Log.i("Inside PreExecute", "True");
+            loadItemsProgress.setTitle("Loading items list...");
+            loadItemsProgress.setCancelable(false);
+            loadItemsProgress.show();
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            Log.i("Inside Background", "True");
+
+            List<NameValuePair> paramsItems = new ArrayList<NameValuePair>();
+
+            paramsItems.add(new BasicNameValuePair("ID",LoginActivity.sessionId));
+            paramsItems.add(new BasicNameValuePair("session", LoginActivity.session));
+            ServiceHandler jsonParser = new ServiceHandler();
+            itemsReturnedJSON = jsonParser.makeServiceCall(itemsURL, ServiceHandler.POST, paramsItems);
+            if (itemsReturnedJSON != null) {
+                try{
+                    Log.i("itemsReturnedJSON",itemsReturnedJSON);
+                    JSONObject itemsJSON = new JSONObject(itemsReturnedJSON);
+                    if(itemsJSON.getString("success").equals("true")){
+                        //TODO load items from this place
+                    }
+                    else
+                        ;
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Log.i("Inside PostExecute", "True");
+            super.onPostExecute(result);
+
+            if(loadItemsProgress!=null && loadItemsProgress.isShowing()) {
+                loadItemsProgress.hide();
+                loadItemsProgress.dismiss();
+            }
+
+        }
+
+    }
+
+    private class LoadProductImages extends AsyncTask<Void, Void, String>{
+
+        @Override
+        protected void onPreExecute() {
+            Log.i("Inside PreExecute", "True");
+            loadItemsProgress.setTitle("Loading items list...");
+            loadItemsProgress.setCancelable(false);
+            loadItemsProgress.show();
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            Log.i("Inside Background", "True");
+
+            List<NameValuePair> paramsItems = new ArrayList<NameValuePair>();
+
+            paramsItems.add(new BasicNameValuePair("PID",LoginActivity.sessionId)); //TODO must change this to PID
+            paramsItems.add(new BasicNameValuePair("width", "100"));
+            ServiceHandler jsonParser = new ServiceHandler();
+            itemsURLReturnedJSON = jsonParser.makeServiceCall(itemsImagesURL, ServiceHandler.GET, paramsItems);
+            if (itemsURLReturnedJSON != null) {
+                try{
+                    Log.i("itemsURLReturnedJSON",itemsURLReturnedJSON);
+                    JSONObject itemsURLJSON = new JSONObject(itemsURLReturnedJSON);
+                    if(itemsURLJSON.getString("success").equals("true")){
+                        //TODO load items from this place
+                    }
+                    else
+                        ;
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Log.i("Inside PostExecute", "True");
+            super.onPostExecute(result);
+
+            if(loadItemsProgress!=null && loadItemsProgress.isShowing()) {
+                loadItemsProgress.hide();
+                loadItemsProgress.dismiss();
+            }
+
+        }
+
+    }
 
 }
+
 
