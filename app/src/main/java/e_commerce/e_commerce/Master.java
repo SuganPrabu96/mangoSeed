@@ -825,6 +825,8 @@ public class Master extends ActionBarActivity {
         private TextView name, email, address, phone, password;
         Button submit;
         public static Handler msgHandler;
+        private Dialog confirmChangesDialog;
+        private boolean confirmChangesAuth;
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -870,6 +872,13 @@ public class Master extends ActionBarActivity {
             phone.setText(LoginActivity.prefs.getString("Phone",""));
             address.setText(LoginActivity.prefs.getString("Address",""));
             password.setText(LoginActivity.prefs.getString("Password",""));
+
+            editNewName.setHint(name.getText());
+            editNewEmail.setHint(email.getText());
+            editNewPhone.setHint(phone.getText());
+            editNewAddress.setHint(address.getText());
+            editNewPassword.setHint(password.getText());
+
 
             Log.i("Name",LoginActivity.prefs.getString("Name",""));
 
@@ -929,6 +938,7 @@ public class Master extends ActionBarActivity {
                 public void afterTextChanged(Editable s) {
                     if(name.getText()!=s.toString()) {
                         name.setText(s.toString());
+                        editNewName.setHint(s.toString());
                         submit.setVisibility(View.VISIBLE);
                     }
                     else if(LoginActivity.prefs.getString("Name","").equals(name.getText())&&
@@ -956,6 +966,7 @@ public class Master extends ActionBarActivity {
                 public void afterTextChanged(Editable s) {
                     if(email.getText()!=s.toString()) {
                         email.setText(s.toString());
+                        editNewEmail.setHint(s.toString());
                         submit.setVisibility(View.VISIBLE);
                     }
                     else if(LoginActivity.prefs.getString("Name","").equals(name.getText())&&
@@ -982,6 +993,7 @@ public class Master extends ActionBarActivity {
                 public void afterTextChanged(Editable s) {
                     if(phone.getText()!=s.toString()) {
                         phone.setText(s.toString());
+                        editNewPhone.setHint(s.toString());
                         submit.setVisibility(View.VISIBLE);
                     }
                     else if(LoginActivity.prefs.getString("Name","").equals(name.getText())&&
@@ -1008,6 +1020,7 @@ public class Master extends ActionBarActivity {
                 public void afterTextChanged(Editable s) {
                     if(address.getText()!=s.toString()) {
                         address.setText(s.toString());
+                        editNewAddress.setText(s.toString());
                         submit.setVisibility(View.VISIBLE);
                     }
                     else if(LoginActivity.prefs.getString("Name","").equals(name.getText())&&
@@ -1034,6 +1047,7 @@ public class Master extends ActionBarActivity {
                 public void afterTextChanged(Editable s) {
                     if(password.getText()!=s.toString()) {
                         password.setText(s.toString());
+                        editNewPassword.setHint(s.toString());
                         submit.setVisibility(View.VISIBLE);
                     }
                     else if(LoginActivity.prefs.getString("Name","").equals(name.getText())&&
@@ -1048,12 +1062,33 @@ public class Master extends ActionBarActivity {
             submit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(LoginActivity.prefs.getString("Password","").equals(editNewPassword.getText().toString()))
-                        new ChangeDetailsTask().execute(name.getText().toString(),email.getText().toString(),
-                                password.getText().toString(),address.getText().toString(),phone.getText().toString());
+
+                    confirmChangesDialog = new Dialog(rootView.getContext());
+                    confirmChangesDialog();
+
+                    Handler confirimChangesMsgHandler = new Handler() {
+                        public void handleMessage(Message msg) {
+                            if (msg.arg1 == 1) {
+                                if(msg.arg2 == 0)
+                                    confirmChangesAuth = false;
+                                else if(msg.arg2 == 1)
+                                    confirmChangesAuth = true;
+                            }
+                        }
+                    };
+
+                    if(confirmChangesAuth == true) {
+
+                        if (LoginActivity.prefs.getString("Password", "").equals(editNewPassword.getText().toString()))
+                            new ChangeDetailsTask().execute(name.getText().toString(), email.getText().toString(),
+                                    password.getText().toString(), address.getText().toString(), phone.getText().toString());
+                        else
+                            new ChangeDetailsTask().execute(name.getText().toString(), email.getText().toString(), ""
+                                    , address.getText().toString(), phone.getText().toString());
+                    }
+
                     else
-                        new ChangeDetailsTask().execute(name.getText().toString(),email.getText().toString(),""
-                                ,address.getText().toString(),phone.getText().toString());
+                        Toast.makeText(rootView.getContext(),"Wrong password",Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -1065,14 +1100,88 @@ public class Master extends ActionBarActivity {
                 }
             });
 
+            editNewEmail.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    editNewEmail.setVisibility(View.INVISIBLE);
+                    email.setVisibility(View.VISIBLE);
+                }
+            });
+
+            editNewAddress.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    editNewAddress.setVisibility(View.INVISIBLE);
+                    address.setVisibility(View.VISIBLE);
+                }
+            });
+
+            editNewPhone.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    editNewPhone.setVisibility(View.INVISIBLE);
+                    phone.setVisibility(View.VISIBLE);
+                }
+            });
+
+            editNewPassword.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    editNewPassword.setVisibility(View.INVISIBLE);
+                    password.setVisibility(View.VISIBLE);
+                }
+            });
+
             msgHandler = new Handler() {
                 public void handleMessage(Message msg) {
                     if(msg.arg1==0)
                         Toast.makeText(rootView.getContext(), (CharSequence) msg.obj,Toast.LENGTH_SHORT).show();
+                    if(msg.obj.equals("Updated details successfully"))
+                    {
+                        editNewName.setVisibility(View.INVISIBLE);
+                        editNewEmail.setVisibility(View.INVISIBLE);
+                        editNewAddress.setVisibility(View.INVISIBLE);
+                        editNewPhone.setVisibility(View.INVISIBLE);
+                        editNewPassword.setVisibility(View.INVISIBLE);
+
+                        name.setVisibility(View.VISIBLE);
+                        email.setVisibility(View.VISIBLE);
+                        address.setVisibility(View.VISIBLE);
+                        phone.setVisibility(View.VISIBLE);
+                        password.setVisibility(View.VISIBLE);
+                    }
                 }
             };
 
             return rootView;
+        }
+
+        private void confirmChangesDialog(){
+            final EditText confirmPassword;
+            final Button confirmChangesSubmit;
+
+            confirmChangesDialog.setContentView(R.layout.confirm_changes);
+            confirmChangesDialog.setTitle("Enter password to confirm changes");
+            confirmChangesDialog.setCancelable(true);
+            confirmChangesDialog.show();
+
+            confirmPassword = (EditText) confirmChangesDialog.findViewById(R.id.confirmChangesPassword);
+            confirmChangesSubmit = (Button) confirmChangesDialog.findViewById(R.id.confirmChangesSubmit);
+
+            confirmChangesSubmit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Message msg = new Message();
+                    msg.arg1=1;
+                    if(confirmPassword.getText().toString().equals(LoginActivity.prefs.getString("Password",""))){
+                        msg.arg2=1;
+                    }
+                    else
+                        msg.arg2=0;
+                    MyAccountFragment.msgHandler.sendMessage(msg);
+                }
+            });
+
         }
     }
 
