@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="e_commerce.e_commerce" >
+    package="e_commerce.e_commerce">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -56,6 +56,10 @@
         <activity
             android:name=".LocationFromMap"
             android:label="@string/title_activity_location"></activity>
+
+        <activity
+            android:name=".ParallaxToolbarScrollViewActivity"
+            android:label=""></activity>
 
     </application>
 

@@ -64,10 +64,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import HelpViewPager.ViewPagerAdapter;
-import ItemDisplay.CardAdapter;
 import ItemDisplay.CategoryCardAdapter;
 import ItemDisplay.CategoryCardClass;
 import ItemDisplay.ItemDetailsClass;
+import ItemDisplay.ItemsCardAdapter;
 import ItemDisplay.SubcategoryCardAdapter;
 import ItemDisplay.SubcategoryCardClass;
 import NavigationDrawer.NavDrawerItem;
@@ -85,8 +85,8 @@ public class Master extends ActionBarActivity {
     public static ImageView profileIcon;
     public static CircleImageView googleProfileIcon;
     public static String modeOfLogin;
-    public static int numCategories, numSubCategories[], categoryID[];
-    public static ArrayList<String> categoryName;
+    public static int numCategories, numSubCategories[], categoryID[], productsID[], numProducts;
+    public static ArrayList<String> categoryName, productsName;
     public static ArrayList<int[]> subcategoryID;
     public static ArrayList<String[]> subcategoryName;
     private final String categoriesURL = "http://grokart.ueuo.com/listCategories.php";
@@ -123,6 +123,7 @@ public class Master extends ActionBarActivity {
         setContentView(R.layout.nav_bar);
 
         categoryName = new ArrayList();
+        productsName = new ArrayList();
 
         updateProgress = new ProgressDialog(Master.this);
         locationProgress = new ProgressDialog(Master.this);
@@ -1314,16 +1315,18 @@ public class Master extends ActionBarActivity {
 
     public static class ProductsFragment extends Fragment {
 
-        public static Handler categoryMsgHandler, subcategoryMsgHandler;
+        public static Handler categoryMsgHandler, subcategoryMsgHandler, productsMsgHandler;
         TextView categoryCat, subCategoryCat, productsCat, subCategorySubCat, productsSubCat, productsProduct;
         ArrayList<ItemDetailsClass> listOfItems;
         ArrayList<CategoryCardClass> listOfCateg = new ArrayList<>();
         ArrayList<SubcategoryCardClass> listOfSubCateg;
-        private CardAdapter mAdapter1;
+        private ItemsCardAdapter mAdapter1;
         private RecyclerView categoryRecycleView, subcategoryRecycleView, productsRecyclerView;
         private CategoryCardAdapter mAdapter2;
         private SubcategoryCardAdapter mAdapter3;
         private SwipeRefreshLayout swipeRefreshLayoutProducts;
+        private int catID,subcatID;
+        private int[] categoryImageURL = {R.drawable.personalcare, R.drawable.brandedfoods, R.drawable.groceries};
 
         public ProductsFragment() {
         }
@@ -1335,7 +1338,7 @@ public class Master extends ActionBarActivity {
 
             if (numCategories > 0)
                 for (int i = 0; i < numCategories; i++) {
-                    listOfCateg.add(i, new CategoryCardClass(categoryName.get(i), 0));  //TODO change this to image URL received from db
+                    listOfCateg.add(i, new CategoryCardClass(categoryName.get(i), categoryImageURL[i]));
                 }
 
             swipeRefreshLayoutProducts = (SwipeRefreshLayout) rootView1.findViewById(R.id.swipeToRefresh_Products);
@@ -1364,17 +1367,15 @@ public class Master extends ActionBarActivity {
 
             productsRecyclerView = (RecyclerView) rootView1.findViewById(R.id.my_recycler_view);
             productsRecyclerView.setHasFixedSize(true);
-            productsRecyclerView.setLayoutManager(new GridLayoutManager(rootView1.getContext(), 2));
+            productsRecyclerView.setLayoutManager(new GridLayoutManager(rootView1.getContext(), 3));
             productsRecyclerView.setItemAnimator(new DefaultItemAnimator());
-
-            mAdapter1 = new CardAdapter(listOfItems, rootView1.getContext());
-            productsRecyclerView.setAdapter(mAdapter1);
 
             categoryMsgHandler = new Handler() {
                 public void handleMessage(Message msg) {
                     if (msg.arg1 == 1) {
 
                         Log.i("Arg2", String.valueOf(msg.arg2));
+                        catID = msg.arg2;
 
                         listOfSubCateg = new ArrayList<>();
 
@@ -1398,13 +1399,12 @@ public class Master extends ActionBarActivity {
                     if (msg.arg1 == 2) {
 
                         Log.i("Arg2", String.valueOf(msg.arg2));
-
-                        listOfItems = new ArrayList<>();
-
-                        new LoadItems().execute();
+                        subcatID = msg.arg2;
 
                         mAdapter3 = new SubcategoryCardAdapter(listOfSubCateg, rootView1.getContext());
                         subcategoryRecycleView.setAdapter(mAdapter3);
+
+                        new LoadItems().execute(String.valueOf(catID),String.valueOf(subcatID));
 
                         rootView1.findViewById(R.id.category).setVisibility(View.INVISIBLE);
                         rootView1.findViewById(R.id.subcategory).setVisibility(View.VISIBLE);
@@ -1412,6 +1412,27 @@ public class Master extends ActionBarActivity {
                     }
                 }
             };
+
+            productsMsgHandler = new Handler() {
+                public void handleMessage(Message msg) {
+                    if (msg.arg1 == 3) {
+
+
+                        listOfItems = new ArrayList<>();
+
+                        for(int i=0;i<numProducts;i++)
+                            listOfItems.add(i, new ItemDetailsClass(productsName.get(i),"a")); //TODO change this to URL from db
+
+                        mAdapter1 = new ItemsCardAdapter(listOfItems, rootView1.getContext());
+                        productsRecyclerView.setAdapter(mAdapter1);
+
+                        rootView1.findViewById(R.id.category).setVisibility(View.INVISIBLE);
+                        rootView1.findViewById(R.id.subcategory).setVisibility(View.INVISIBLE);
+                        rootView1.findViewById(R.id.products).setVisibility(View.VISIBLE);
+                    }
+                }
+            };
+
 
             rootView1.findViewById(R.id.category).setVisibility(View.VISIBLE);
             rootView1.findViewById(R.id.subcategory).setVisibility(View.INVISIBLE);
@@ -1463,7 +1484,7 @@ public class Master extends ActionBarActivity {
             new Handler().post(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(getActivity().getApplicationContext(), "Refreshing", Toast.LENGTH_SHORT).show();
+                    new LoadItems().execute(String.valueOf(catID),String.valueOf(subcatID));
                     swipeRefreshLayoutProducts.setRefreshing(false);
                 }
             });
@@ -1501,7 +1522,7 @@ public class Master extends ActionBarActivity {
                 try {
                     JSONObject productsListJSON = new JSONObject(productsJSON);
                     if (productsListJSON.getString("success").equals("true")) {
-                        numCategories = Integer.parseInt(productsListJSON.getString("numCategories"));
+                        numCategories = productsListJSON.getInt("numCategories");
                         JSONArray list = new JSONArray(String.valueOf(productsListJSON.getJSONArray("list")));
 
                         categoryID = new int[numCategories];
@@ -1531,7 +1552,6 @@ public class Master extends ActionBarActivity {
                         }
                         Log.i("Loaded", "Fully done");
                     }
-
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -1698,8 +1718,9 @@ public class Master extends ActionBarActivity {
 
         }
 
-    public static class LoadItems extends AsyncTask<Void, Void, String> {
+    public static class LoadItems extends AsyncTask<String, Void, String> {
 
+        private boolean loadItemsSuccess = false;
         @Override
         protected void onPreExecute() {
             Log.i("Inside PreExecute", "True");
@@ -1709,21 +1730,35 @@ public class Master extends ActionBarActivity {
         }
 
         @Override
-        protected String doInBackground(Void... params) {
+        protected String doInBackground(String... params) {
             Log.i("Inside Background", "True");
 
             List<NameValuePair> paramsItems = new ArrayList<NameValuePair>();
 
-            paramsItems.add(new BasicNameValuePair("ID",LoginActivity.sessionId));
+            Log.i("catID",params[0]);
+            Log.i("subCatID",params[1]);
+
             paramsItems.add(new BasicNameValuePair("session", LoginActivity.session));
+            paramsItems.add(new BasicNameValuePair("ID",params[0]));
+            paramsItems.add(new BasicNameValuePair("subID",params[1]));
             ServiceHandler jsonParser = new ServiceHandler();
             itemsReturnedJSON = jsonParser.makeServiceCall(itemsURL, ServiceHandler.POST, paramsItems);
             if (itemsReturnedJSON != null) {
                 try{
+                    loadItemsSuccess = true;
                     Log.i("itemsReturnedJSON",itemsReturnedJSON);
                     JSONObject itemsJSON = new JSONObject(itemsReturnedJSON);
                     if(itemsJSON.getString("success").equals("true")){
-                        //TODO load items from this place
+
+                        JSONArray itemsList = new JSONArray(itemsJSON.getJSONArray("items")); //TODO change the key name
+                        numProducts = itemsJSON.getInt("itemCount"); //TODO change the key name
+                        productsID = new int[numProducts];
+
+                        for(int i=0;i<numProducts;i++) {
+                            JSONObject tempItemJSON = new JSONObject(String.valueOf(itemsList.getJSONObject(i)));
+                            productsID[i] = tempItemJSON.getInt("PID"); //TODO change the key name
+                            productsName.add(i, tempItemJSON.getString("product")); //TODO change the key name
+                        }
                     }
                     else
                         ;
@@ -1745,11 +1780,21 @@ public class Master extends ActionBarActivity {
                 loadItemsProgress.dismiss();
             }
 
+            if(loadItemsSuccess) {
+                Message itemsMsg = new Message();
+                itemsMsg.arg1=3;
+                ProductsFragment.productsMsgHandler.sendMessage(itemsMsg);
+
+            }
+
+           for(int i=0;i<numProducts;i++)
+                new LoadProductImages().execute(String.valueOf(productsID[i]));
+
         }
 
     }
 
-    private class LoadProductImages extends AsyncTask<Void, Void, String>{
+    private static class LoadProductImages extends AsyncTask<String, Void, String>{
 
         @Override
         protected void onPreExecute() {
@@ -1760,12 +1805,12 @@ public class Master extends ActionBarActivity {
         }
 
         @Override
-        protected String doInBackground(Void... params) {
+        protected String doInBackground(String... params) {
             Log.i("Inside Background", "True");
 
             List<NameValuePair> paramsItems = new ArrayList<NameValuePair>();
 
-            paramsItems.add(new BasicNameValuePair("PID",LoginActivity.sessionId)); //TODO must change this to PID
+            paramsItems.add(new BasicNameValuePair("PID",params[0]));
             paramsItems.add(new BasicNameValuePair("width", "100"));
             ServiceHandler jsonParser = new ServiceHandler();
             itemsURLReturnedJSON = jsonParser.makeServiceCall(itemsImagesURL, ServiceHandler.GET, paramsItems);

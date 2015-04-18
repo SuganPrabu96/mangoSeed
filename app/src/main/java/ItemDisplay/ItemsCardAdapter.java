@@ -35,10 +35,8 @@ public class ItemsCardAdapter extends RecyclerView.Adapter<ViewHolderItems>{
     public void onBindViewHolder(final ViewHolderItems viewHolder, final int position) {
         final ItemDetailsClass item = items.get(position);
 
-
         viewHolder.itemname.setText(item.getItemtitle());
         viewHolder.itemimg.setImageResource(Integer.parseInt(item.getItemimgurl()));
-
 
     }
 
