@@ -133,6 +133,8 @@ public class LoginActivity extends FragmentActivity implements
 
 
         if(!prefs.getString("LoginStatus","").equals("")&&prefs.getString("LoginStatus","").equals("Logged in")){
+            prefs.edit().putString("LoginStatus","Already Logged in").apply();
+            prefs.edit().putString("LoginStatus","Already Logged in").commit();
             Intent loginIntent = new Intent(LoginActivity.this,Master.class);
             loginIntent.putExtra("loginMethod",prefs.getString("LoginMode",""));
             startActivity(loginIntent);

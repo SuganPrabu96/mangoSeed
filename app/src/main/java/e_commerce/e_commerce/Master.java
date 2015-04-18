@@ -95,7 +95,7 @@ public class Master extends ActionBarActivity {
     private static final String itemsURL = "http://grokart.ueuo.com/catProds.php";
     private static final String itemsImagesURL = "http://grokart.ueuo.com/prodImage.php";
     public FragmentTransaction fragmentTransaction;
-    public Dialog locationDialog;
+    public static Dialog locationDialog;
     public String[] location = {"Chennai", "Adyar"}; // location[0] is city and location[1] is area
     ActionBar actionBar;
     private CharSequence mTitle = "E - Commerce"; //TODO change this to the name of the startup
@@ -153,10 +153,10 @@ public class Master extends ActionBarActivity {
         }
 
         actionBar = getSupportActionBar();
+        actionBar.setTitle(LoginActivity.prefs.getString("areaname",""));
 
-        //if(!LoginActivity.prefs.getString("LoginStatus","").equals("Logged in")) {
-
-        getLocationForItems();
+        if(!LoginActivity.prefs.getString("LoginStatus","").equals("Already Logged in"))
+            getLocationForItems();
 
         Window window = Master.this.getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -257,16 +257,18 @@ public class Master extends ActionBarActivity {
 
             actionBar.setTitle(location[1]);
 
-            //TODO set the default values as the existing values which the user had selected earlier
-
             city.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                boolean check = false;
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    location[0] = city.getSelectedItem().toString();
-                    LoginActivity.prefs.edit().putString("city", String.valueOf(id)).apply();
-                    LoginActivity.prefs.edit().putString("city", String.valueOf(id)).commit();
+                    if(check) {
+                        location[0] = city.getSelectedItem().toString();
+                        LoginActivity.prefs.edit().putString("city", String.valueOf(id)).apply();
+                        LoginActivity.prefs.edit().putString("city", String.valueOf(id)).commit();
 
-                    LoginActivity.prefs.edit().putString("cityname", location[0]).apply();
+                        LoginActivity.prefs.edit().putString("cityname", location[0]).apply();
+                    }
+                    check=true;
                 }
 
                 @Override
@@ -276,21 +278,25 @@ public class Master extends ActionBarActivity {
             });
 
             area.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                boolean check = false;
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    location[1] = area.getSelectedItem().toString();
-                    actionBar.setTitle(location[1]);
-                    LoginActivity.prefs.edit().putString("area", String.valueOf(id)).apply();
-                    LoginActivity.prefs.edit().putString("area", String.valueOf(id)).commit();
+                    if(check) {
+                        location[1] = area.getSelectedItem().toString();
+                        actionBar.setTitle(location[1]);
+                        LoginActivity.prefs.edit().putString("area", String.valueOf(id)).apply();
+                        LoginActivity.prefs.edit().putString("area", String.valueOf(id)).commit();
 
-                    Log.i("location[1]", location[1]);
-                    LoginActivity.prefs.edit().putString("areaname", location[1]).apply();
-                    Log.i("areaname", LoginActivity.prefs.getString("areaname", ""));
+                        Log.i("location[1]", location[1]);
+                        LoginActivity.prefs.edit().putString("areaname", location[1]).apply();
+                        Log.i("areaname", LoginActivity.prefs.getString("areaname", ""));
 
-                    locationDialog.hide();
-                    locationDialog.dismiss();
+                        locationDialog.hide();
+                        locationDialog.dismiss();
 
-                    new LocationDetails().execute(loc_lat[position], loc_long[position], LoginActivity.session);
+                        new LocationDetails().execute(loc_lat[position], loc_long[position], LoginActivity.session);
+                    }
+                    check=true;
                 }
 
                 @Override
@@ -550,8 +556,6 @@ public class Master extends ActionBarActivity {
 
             actionBar.setTitle(location[1]);
 
-            //TODO set the default values as the existing values which the user had selected earlier
-
             city.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -643,16 +647,18 @@ public class Master extends ActionBarActivity {
 
             actionBar.setTitle(location[1]);
 
-            //TODO set the default values as the existing values which the user had selected earlier
-
             city.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                boolean check = false;
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    location[0] = city.getSelectedItem().toString();
-                    LoginActivity.prefs.edit().putString("city", String.valueOf(id)).apply();
-                    LoginActivity.prefs.edit().putString("city", String.valueOf(id)).commit();
+                    if(check) {
+                        location[0] = city.getSelectedItem().toString();
+                        LoginActivity.prefs.edit().putString("city", String.valueOf(id)).apply();
+                        LoginActivity.prefs.edit().putString("city", String.valueOf(id)).commit();
 
-                    LoginActivity.prefs.edit().putString("cityname", location[0]).apply();
+                        LoginActivity.prefs.edit().putString("cityname", location[0]).apply();
+                    }
+                    check=true;
                 }
 
                 @Override
@@ -662,16 +668,20 @@ public class Master extends ActionBarActivity {
             });
 
             area.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                boolean check = false;
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    location[1] = area.getSelectedItem().toString();
-                    actionBar.setTitle(location[1]);
-                    LoginActivity.prefs.edit().putString("area", String.valueOf(id)).apply();
-                    LoginActivity.prefs.edit().putString("area", String.valueOf(id)).commit();
+                    if(check) {
+                        location[1] = area.getSelectedItem().toString();
+                        actionBar.setTitle(location[1]);
+                        LoginActivity.prefs.edit().putString("area", String.valueOf(id)).apply();
+                        LoginActivity.prefs.edit().putString("area", String.valueOf(id)).commit();
 
-                    Log.i("location[1]", location[1]);
-                    LoginActivity.prefs.edit().putString("areaname", location[1]).apply();
-                    Log.i("areaname", LoginActivity.prefs.getString("areaname", ""));
+                        Log.i("location[1]", location[1]);
+                        LoginActivity.prefs.edit().putString("areaname", location[1]).apply();
+                        Log.i("areaname", LoginActivity.prefs.getString("areaname", ""));
+                    }
+                    check=true;
                 }
 
                 @Override
@@ -1764,7 +1774,7 @@ public class Master extends ActionBarActivity {
                     Log.i("itemsURLReturnedJSON",itemsURLReturnedJSON);
                     JSONObject itemsURLJSON = new JSONObject(itemsURLReturnedJSON);
                     if(itemsURLJSON.getString("success").equals("true")){
-                        //TODO load items from this place
+                        //TODO load item images from this place
                     }
                     else
                         ;

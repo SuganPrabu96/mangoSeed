@@ -181,6 +181,12 @@ public class LocationFromMap extends FragmentActivity
                     msg.arg1=1;
                     msg.arg2=1;
                     Master.locationHandler.sendMessage(msg);
+
+                    if(Master.locationDialog!=null && Master.locationDialog.isShowing()) {
+                        Master.locationDialog.hide();
+                        Master.locationDialog.dismiss();
+                    }
+
                     finish();
 
                 }
@@ -227,6 +233,11 @@ public class LocationFromMap extends FragmentActivity
         msg.arg1=1;
         msg.arg2=1;
         Master.locationHandler.sendMessage(msg);
+        if(Master.locationDialog!=null && Master.locationDialog.isShowing()) {
+            Master.locationDialog.hide();
+            Master.locationDialog.dismiss();
+        }
+
     }
 
    /* @Override
