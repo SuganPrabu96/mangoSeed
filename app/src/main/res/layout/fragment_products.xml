@@ -73,13 +73,8 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         >
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center|top"
-            android:layout_marginTop="30dp"
-            android:text="Cart"
-            android:textSize="16sp" />
+        <include layout="@layout/cart"></include>
+
 
     </LinearLayout>
     </com.sothree.slidinguppanel.SlidingUpPanelLayout>
