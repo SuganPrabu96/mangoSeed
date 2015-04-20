@@ -10,5 +10,12 @@
         android:layout_marginTop="30dp"
         android:text="Cart"
         android:textSize="16sp" />
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/cart_items_recyclerview"
+        android:paddingTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"/>
+
 
 </LinearLayout>

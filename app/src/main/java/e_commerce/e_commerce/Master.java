@@ -25,6 +25,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -63,6 +64,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import Cart.CartItemsClass;
+import Cart.CartRecyclerViewAdapter;
 import HelpViewPager.ViewPagerAdapter;
 import ItemDisplay.CategoryCardAdapter;
 import ItemDisplay.CategoryCardClass;
@@ -85,8 +88,8 @@ public class Master extends ActionBarActivity {
     public static ImageView profileIcon;
     public static CircleImageView googleProfileIcon;
     public static String modeOfLogin;
-    public static int numCategories, numSubCategories[], categoryID[], productsID[], numProducts;
-    public static ArrayList<String> categoryName, productsName, productDesc;
+    public static int numCategories, numSubCategories[], categoryID[], productsID[], numProducts, newProductsID[];
+    public static ArrayList<String> categoryName, productsName, productDesc, newProductsName;
     public static ArrayList<int[]> subcategoryID;
     public static ArrayList<String[]> subcategoryName;
     private final String categoriesURL = "http://grokart.ueuo.com/listCategories.php";
@@ -95,6 +98,7 @@ public class Master extends ActionBarActivity {
     private static final String itemsURL = "http://grokart.ueuo.com/catProds.php";
     private static final String itemsImagesURL = "http://grokart.ueuo.com/prodImage.php";
     private static final String logoutURL = "http://grokart.ueuo.com/logout.php";
+    private static final String newItemsURL = "http://grokart.ueuo.com/latest.php";
     public FragmentTransaction fragmentTransaction;
     public static Dialog locationDialog;
     public String[] location = {"Chennai", "Adyar"}; // location[0] is city and location[1] is area
@@ -105,11 +109,13 @@ public class Master extends ActionBarActivity {
     private ActionBarDrawerToggle mDrawerToggle;
     private String productsJSON;
     private String locationReturnedJSON;
-    private static String itemsReturnedJSON, itemsURLReturnedJSON, logoutReturnedJSON;
+    private static String itemsReturnedJSON, itemsURLReturnedJSON, logoutReturnedJSON, newItemsReturnedJSON;
     private static String updateDetailsReturnedJSON;
-    public static ProgressDialog updateProgress, locationProgress, loadItemsProgress, logoutProgress;
-    public static Handler locationHandler, logoutHandler;
+    public static ProgressDialog updateProgress, locationProgress, loadItemsProgress, logoutProgress, loadCatSubCatProgress,
+                                 loadNewItemsProgress;
+    public static Handler locationHandler, logoutHandler, loadItems, loadItemImages, newItemsHandler;
     public static boolean logoutSuccess = false;
+    static ArrayList<CartItemsClass> cartitems = new ArrayList<>();
     String[] loc_city = {"Chennai"};
     String[] loc_area = {"Adyar", "Ambattur", "Anna Nagar"};
     String[] loc_lat = {"13.0063","13.0983","13.0846"};
@@ -126,11 +132,14 @@ public class Master extends ActionBarActivity {
 
         categoryName = new ArrayList();
         productsName = new ArrayList();
+        newProductsName = new ArrayList<>();
 
         updateProgress = new ProgressDialog(Master.this);
         locationProgress = new ProgressDialog(Master.this);
         loadItemsProgress = new ProgressDialog(Master.this);
         logoutProgress = new ProgressDialog(Master.this);
+        loadCatSubCatProgress = new ProgressDialog(Master.this);
+        loadNewItemsProgress = new ProgressDialog(Master.this);
 
         facebookProfileIcon = (ProfilePictureView) findViewById(R.id.profilepic_facebook);
         profileIconText = (TextView) findViewById(R.id.profilepic_name);
@@ -805,6 +814,18 @@ public class Master extends ActionBarActivity {
                 }
             });
 
+            RecyclerView cartItemRecyclerView;
+            CartRecyclerViewAdapter cAdapter;
+            ArrayList<CartItemsClass> cartitems = new ArrayList<>();
+
+            cartItemRecyclerView = (RecyclerView) rootView.findViewById(R.id.cart_items_recyclerview);
+            cartItemRecyclerView.setHasFixedSize(false);
+            cartItemRecyclerView.setLayoutManager(new LinearLayoutManager(rootView.getContext()));
+            cartItemRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+            cAdapter = new CartRecyclerViewAdapter(cartitems, rootView.getContext());
+            cartItemRecyclerView.setAdapter(cAdapter);
+
             return rootView;
         }
     }
@@ -878,6 +899,18 @@ public class Master extends ActionBarActivity {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_about, container, false);
 
+            RecyclerView cartItemRecyclerView;
+            CartRecyclerViewAdapter cAdapter;
+            ArrayList<CartItemsClass> cartitems = new ArrayList<>();
+
+            cartItemRecyclerView = (RecyclerView) rootView.findViewById(R.id.cart_items_recyclerview);
+            cartItemRecyclerView.setHasFixedSize(false);
+            cartItemRecyclerView.setLayoutManager(new LinearLayoutManager(rootView.getContext()));
+            cartItemRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+            cAdapter = new CartRecyclerViewAdapter(cartitems, rootView.getContext());
+            cartItemRecyclerView.setAdapter(cAdapter);
+
             return rootView;
         }
     }
@@ -915,6 +948,18 @@ public class Master extends ActionBarActivity {
                     }
                 }
             });
+
+            RecyclerView cartItemRecyclerView;
+            CartRecyclerViewAdapter cAdapter;
+            ArrayList<CartItemsClass> cartitems = new ArrayList<>();
+
+            cartItemRecyclerView = (RecyclerView) rootView.findViewById(R.id.cart_items_recyclerview);
+            cartItemRecyclerView.setHasFixedSize(false);
+            cartItemRecyclerView.setLayoutManager(new LinearLayoutManager(rootView.getContext()));
+            cartItemRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+            cAdapter = new CartRecyclerViewAdapter(cartitems, rootView.getContext());
+            cartItemRecyclerView.setAdapter(cAdapter);
             return rootView;
         }
     }
@@ -929,6 +974,18 @@ public class Master extends ActionBarActivity {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_order_history, container, false);
 
+
+            RecyclerView cartItemRecyclerView;
+            CartRecyclerViewAdapter cAdapter;
+            ArrayList<CartItemsClass> cartitems = new ArrayList<>();
+
+            cartItemRecyclerView = (RecyclerView) rootView.findViewById(R.id.cart_items_recyclerview);
+            cartItemRecyclerView.setHasFixedSize(false);
+            cartItemRecyclerView.setLayoutManager(new LinearLayoutManager(rootView.getContext()));
+            cartItemRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+            cAdapter = new CartRecyclerViewAdapter(cartitems, rootView.getContext());
+            cartItemRecyclerView.setAdapter(cAdapter);
 
             return rootView;
         }
@@ -1264,6 +1321,18 @@ public class Master extends ActionBarActivity {
                 }
             };
 
+            RecyclerView cartItemRecyclerView;
+            CartRecyclerViewAdapter cAdapter;
+            ArrayList<CartItemsClass> cartitems = new ArrayList<>();
+
+            cartItemRecyclerView = (RecyclerView) rootView.findViewById(R.id.cart_items_recyclerview);
+            cartItemRecyclerView.setHasFixedSize(false);
+            cartItemRecyclerView.setLayoutManager(new LinearLayoutManager(rootView.getContext()));
+            cartItemRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+            cAdapter = new CartRecyclerViewAdapter(cartitems, rootView.getContext());
+            cartItemRecyclerView.setAdapter(cAdapter);
+
             return rootView;
         }
 
@@ -1478,6 +1547,18 @@ public class Master extends ActionBarActivity {
                 }
             });
 
+            RecyclerView cartItemRecyclerView;
+            CartRecyclerViewAdapter cAdapter;
+            ArrayList<CartItemsClass> cartitems = new ArrayList<>();
+
+            cartItemRecyclerView = (RecyclerView) rootView1.findViewById(R.id.cart_items_recyclerview);
+            cartItemRecyclerView.setHasFixedSize(false);
+            cartItemRecyclerView.setLayoutManager(new LinearLayoutManager(rootView1.getContext()));
+            cartItemRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+            cAdapter = new CartRecyclerViewAdapter(cartitems, rootView1.getContext());
+            cartItemRecyclerView.setAdapter(cAdapter);
+
             return rootView1;
 
         }
@@ -1488,6 +1569,14 @@ public class Master extends ActionBarActivity {
                 @Override
                 public void run() {
                     new LoadItems().execute(String.valueOf(catID),String.valueOf(subcatID));
+                    newItemsHandler = new Handler() {
+                        public void handleMessage(Message msg) {
+                            if (msg.arg1 == 1) {
+                                if(swipeRefreshLayoutProducts.isRefreshing())
+                                    swipeRefreshLayoutProducts.setRefreshing(false);
+                            }
+                        }
+                    };
                 }
             });
         }
@@ -1565,6 +1654,15 @@ public class Master extends ActionBarActivity {
 
     }
 
+    public static void addtocart_fn(ItemDetailsClass item){
+
+        Master.cartitems.add(new CartItemsClass(item.getItemtitle()));
+        //       ImageButton ib = (ImageButton)
+
+
+
+    }
+
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView parent, View view, int position, long id) {
@@ -1573,17 +1671,64 @@ public class Master extends ActionBarActivity {
         }
     }
 
-    public class LoadCatSubCat extends AsyncTask<Void, Void, Void> {
+    public class NewItems extends AsyncTask<String,Void,Void>{
 
-        ProgressDialog p1 = new ProgressDialog(Master.this);
+        @Override
+        protected void onPreExecute(){
+            super.onPreExecute();
+
+        }
+
+        @Override
+        protected Void doInBackground(String...params){
+
+            Log.i("Inside Background", "True");
+
+            List<NameValuePair> paramsItems = new ArrayList<NameValuePair>();
+
+            paramsItems.add(new BasicNameValuePair("session", params[0]));
+            paramsItems.add(new BasicNameValuePair("time", params[1]));
+
+            ServiceHandler jsonParser = new ServiceHandler();
+            newItemsReturnedJSON = jsonParser.makeServiceCall(newItemsURL, ServiceHandler.POST, paramsItems);
+            if (newItemsReturnedJSON != null) {
+                try {
+                    Log.i("newItemsReturnedJSON", newItemsReturnedJSON);
+                    JSONObject newItemsJSON = new JSONObject(newItemsReturnedJSON);
+                    if (newItemsJSON.getString("success").equals("true")) {
+
+                    } else {
+
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result){
+            super.onPostExecute(result);
+
+            Message msg = new Message();
+            msg.arg1 = 1;
+            newItemsHandler.sendMessage(msg);
+
+        }
+    }
+
+    public class LoadCatSubCat extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
 
-            p1.setTitle("Loading Products List...");
-            p1.setCancelable(false);
-            p1.show();
+            loadCatSubCatProgress.setTitle("Loading Products List...");
+            loadCatSubCatProgress.setCancelable(false);
+            loadCatSubCatProgress.show();
 
         }
 
@@ -1639,10 +1784,17 @@ public class Master extends ActionBarActivity {
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
 
-            if (p1 != null && p1.isShowing()) {
-                p1.hide();
-                p1.dismiss();
-            }
+            newItemsHandler = new Handler() {
+                public void handleMessage(Message msg) {
+                    if (msg.arg1 == 1) {
+                        if (loadCatSubCatProgress != null && loadCatSubCatProgress.isShowing()) {
+                            loadCatSubCatProgress.hide();
+                            loadCatSubCatProgress.dismiss();
+                        }
+                    }
+                }
+            };
+
         }
 
     }
@@ -1786,8 +1938,10 @@ public class Master extends ActionBarActivity {
 
                 if(!locationDetailsSuccess)
                     Toast.makeText(getApplicationContext(),"Unable to load products",Toast.LENGTH_SHORT).show();
-                else
+                else {
                     new LoadCatSubCat().execute();
+                    new NewItems().execute(LoginActivity.session, String.valueOf(System.currentTimeMillis()));
+                }
             }
 
         }
@@ -1854,10 +2008,10 @@ public class Master extends ActionBarActivity {
             Log.i("Inside PostExecute", "True");
             super.onPostExecute(result);
 
-            if(loadItemsProgress!=null && loadItemsProgress.isShowing()) {
-                loadItemsProgress.hide();
-                loadItemsProgress.dismiss();
-            }
+                        if(loadItemsProgress!=null && loadItemsProgress.isShowing()) {
+                            loadItemsProgress.hide();
+                            loadItemsProgress.dismiss();
+                        }
 
             if(ProductsFragment.swipeRefreshLayoutProducts.isRefreshing())
                 ProductsFragment.swipeRefreshLayoutProducts.setRefreshing(false);

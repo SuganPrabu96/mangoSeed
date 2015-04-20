@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:andorid="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+
+        android:id="@+id/cart_Cardview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:clickable="true"
+        android:background="?android:selectableItemBackground"
+        android:paddingTop="0dp"
+        card_view:cardBackgroundColor="#FFFFFF"
+        android:scrollbars="vertical"
+
+        card_view:cardCornerRadius="10dp"
+        card_view:cardElevation="5dp"
+        card_view:contentPadding="0dp">
+
+
+        <FrameLayout
+            android:id="@+id/FL"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp"
+            >
+
+
+
+
+            <TextView
+                android:id="@+id/cart_itemname"
+                android:layout_width="260dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left|top"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="30dp"
+                android:text="Item's name"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="#000000" />
+            <ImageButton
+                android:id="@+id/editbutton"
+                android:layout_marginLeft="280dp"
+                android:layout_marginTop="5dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/editimage"
+                />
+            <ImageButton
+                android:id="@+id/removebutton"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="330dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/removeicon"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Cost : "
+                android:layout_marginLeft="5dp"
+                android:layout_marginBottom="5dp"
+                android:id="@+id/cost_tag"
+                android:layout_gravity="left|bottom" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Rs. 30 (say)"
+                android:id="@+id/item_totprice"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="5dp"
+                android:layout_gravity="center_horizontal|bottom" />
+        </FrameLayout></android.support.v7.widget.CardView>
+
+</LinearLayout>

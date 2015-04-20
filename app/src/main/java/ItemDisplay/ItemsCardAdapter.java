@@ -5,9 +5,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import java.util.ArrayList;
 
+import e_commerce.e_commerce.Master;
 import e_commerce.e_commerce.R;
 
 /**
@@ -17,6 +19,7 @@ public class ItemsCardAdapter extends RecyclerView.Adapter<ViewHolderItems>{
 
     private ArrayList<ItemDetailsClass> items;
     private Context context;
+    private Button addBtn;
 
     public ItemsCardAdapter(ArrayList<ItemDetailsClass> items, Context context) {
         this.items = items;
@@ -27,7 +30,10 @@ public class ItemsCardAdapter extends RecyclerView.Adapter<ViewHolderItems>{
     @Override
     public ViewHolderItems onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(context).inflate(R.layout.items_card_front, parent, false);
-        ViewHolderItems vH = new ViewHolderItems(context, v);
+        final ViewHolderItems vH = new ViewHolderItems(context, v);
+
+        addBtn = (Button) v.findViewById(R.id.buttonAdd);
+
         return vH;
     }
 
@@ -37,6 +43,14 @@ public class ItemsCardAdapter extends RecyclerView.Adapter<ViewHolderItems>{
 
         viewHolder.itemname.setText(item.getItemtitle());
         viewHolder.itemimg.setImageResource(Integer.parseInt(item.getItemimgurl()));
+
+        addBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Master.addtocart_fn(item);
+            }
+        });
+
 
     }
 
