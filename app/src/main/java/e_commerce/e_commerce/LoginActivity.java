@@ -302,7 +302,15 @@ public class LoginActivity extends FragmentActivity implements
 
                         }
 
-                        // TODO provide intent to login the user
+                        else if(!MainActivity.internetConnection.isConnectingToInternet()){
+                            Toast.makeText(getApplicationContext(),"Please check your internet connection",Toast.LENGTH_SHORT).show();
+                        }
+
+
+                        else if(registerSuccess==false){
+                            Toast.makeText(getApplicationContext(),"The Email ID you have entered has already been registered",Toast.LENGTH_SHORT).show();
+                        }
+
                     } else if(name.equals("")) {
                         Toast.makeText(getApplicationContext(),"Please enter your name",Toast.LENGTH_SHORT).show();
                     } else if (!pass.equals(cpass)) {
@@ -812,27 +820,6 @@ public class LoginActivity extends FragmentActivity implements
         @Override
         protected String doInBackground(String... params) {
             Log.i("Inside Background","True");
-            /*HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httppost = new HttpPost(RegisterURL);
-            name=params[0];
-            email=params[1];
-            password=params[2];
-            address=params[3];
-            phone=params[4];
-            try{
-                List<NameValuePair> nameValuePairs = new ArrayList<>(5);
-                nameValuePairs.add(new BasicNameValuePair("email",email));
-                nameValuePairs.add(new BasicNameValuePair("password",password));
-                nameValuePairs.add(new BasicNameValuePair("name",name));
-                nameValuePairs.add(new BasicNameValuePair("address",address));
-                nameValuePairs.add(new BasicNameValuePair("telephone",phone));
-                httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-                HttpResponse response = httpclient.execute(httppost);
-            }catch (ClientProtocolException e) {
-                // TODO Auto-generated catch block
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-            }*/
 
             name=params[0];
             email=params[1];
@@ -848,6 +835,8 @@ public class LoginActivity extends FragmentActivity implements
             paramsRegister.add(new BasicNameValuePair("telephone",phone));
             ServiceHandler jsonParser = new ServiceHandler();
             loginReturnedJSON=jsonParser.makeServiceCall(RegisterURL,ServiceHandler.POST,paramsRegister);
+            if(!MainActivity.internetConnection.isConnectingToInternet())
+                return null;
             if(loginReturnedJSON!=null){
                 try{
                     JSONObject registerJSON = new JSONObject(loginReturnedJSON);

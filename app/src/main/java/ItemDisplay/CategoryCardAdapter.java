@@ -47,7 +47,7 @@ public class CategoryCardAdapter extends RecyclerView.Adapter<ViewHoldercateg> {
             public void onClick(View v) {
                 Message categoryMsg = new Message();
                 categoryMsg.arg1 = 1;
-                categoryMsg.arg2 = position;
+                categoryMsg.arg2 = position+1;
                 Master.ProductsFragment.categoryMsgHandler.sendMessage(categoryMsg);
             }
         });

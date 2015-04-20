@@ -46,7 +46,7 @@ public class SubcategoryCardAdapter extends RecyclerView.Adapter<ViewHolderSubca
             public void onClick(View v) {
                 Message subcategoryMsg = new Message();
                 subcategoryMsg.arg1=2;
-                subcategoryMsg.arg2=position;
+                subcategoryMsg.arg2=position+1;
                 Master.ProductsFragment.subcategoryMsgHandler.sendMessage(subcategoryMsg);
             }
         });

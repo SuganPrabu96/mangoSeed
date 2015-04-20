@@ -3,9 +3,11 @@ package e_commerce.e_commerce; /**
  */
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
+import android.widget.TextView;
 
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollView;
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
@@ -19,6 +21,8 @@ public class ParallaxToolbarScrollViewActivity extends ActionBarActivity impleme
     private View mToolbarView;
     private ObservableScrollView mScrollView;
     private int mParallaxImageHeight;
+    private TextView itemDescription;
+    private Intent getIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,13 +33,17 @@ public class ParallaxToolbarScrollViewActivity extends ActionBarActivity impleme
         //setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
         //mImageView = findViewById(R.id.image);
+
+        getIntent = getIntent();
         mImageView = findViewById(R.id.itemdetail_name);
         mToolbarView = findViewById(R.id.toolbar);
+        itemDescription = (TextView) findViewById(R.id.parallaxItemDescription);
         mToolbarView.setBackgroundColor(ScrollUtils.getColorWithAlpha(0, getResources().getColor(R.color.primary)));
 
         mScrollView = (ObservableScrollView) findViewById(R.id.scroll);
         mScrollView.setScrollViewCallbacks(this);
 
+        itemDescription.setText(getIntent.getExtras().getString("Description").toString());
 
         mParallaxImageHeight = getResources().getDimensionPixelSize(R.dimen.parallax_image_height);
     }

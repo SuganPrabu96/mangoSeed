@@ -86,7 +86,7 @@ public class Master extends ActionBarActivity {
     public static CircleImageView googleProfileIcon;
     public static String modeOfLogin;
     public static int numCategories, numSubCategories[], categoryID[], productsID[], numProducts;
-    public static ArrayList<String> categoryName, productsName;
+    public static ArrayList<String> categoryName, productsName, productDesc;
     public static ArrayList<int[]> subcategoryID;
     public static ArrayList<String[]> subcategoryName;
     private final String categoriesURL = "http://grokart.ueuo.com/listCategories.php";
@@ -94,6 +94,7 @@ public class Master extends ActionBarActivity {
     private final String locationURL = "http://grokart.ueuo.com/latlong.php";
     private static final String itemsURL = "http://grokart.ueuo.com/catProds.php";
     private static final String itemsImagesURL = "http://grokart.ueuo.com/prodImage.php";
+    private static final String logoutURL = "http://grokart.ueuo.com/logout.php";
     public FragmentTransaction fragmentTransaction;
     public static Dialog locationDialog;
     public String[] location = {"Chennai", "Adyar"}; // location[0] is city and location[1] is area
@@ -104,10 +105,11 @@ public class Master extends ActionBarActivity {
     private ActionBarDrawerToggle mDrawerToggle;
     private String productsJSON;
     private String locationReturnedJSON;
-    private static String itemsReturnedJSON, itemsURLReturnedJSON;
+    private static String itemsReturnedJSON, itemsURLReturnedJSON, logoutReturnedJSON;
     private static String updateDetailsReturnedJSON;
-    public static ProgressDialog updateProgress, locationProgress, loadItemsProgress;
-    public static Handler locationHandler;
+    public static ProgressDialog updateProgress, locationProgress, loadItemsProgress, logoutProgress;
+    public static Handler locationHandler, logoutHandler;
+    public static boolean logoutSuccess = false;
     String[] loc_city = {"Chennai"};
     String[] loc_area = {"Adyar", "Ambattur", "Anna Nagar"};
     String[] loc_lat = {"13.0063","13.0983","13.0846"};
@@ -128,6 +130,7 @@ public class Master extends ActionBarActivity {
         updateProgress = new ProgressDialog(Master.this);
         locationProgress = new ProgressDialog(Master.this);
         loadItemsProgress = new ProgressDialog(Master.this);
+        logoutProgress = new ProgressDialog(Master.this);
 
         facebookProfileIcon = (ProfilePictureView) findViewById(R.id.profilepic_facebook);
         profileIconText = (TextView) findViewById(R.id.profilepic_name);
@@ -373,59 +376,38 @@ public class Master extends ActionBarActivity {
             logoutAlert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
+                public void onClick(final DialogInterface dialog, int which) {
 
-                    LoginActivity.prefs.edit().putString("Email", "").apply();
-                    LoginActivity.prefs.edit().putString("Password", "").apply();
-                    LoginActivity.prefs.edit().putString("Login", "").apply();
-                    LoginActivity.prefs.edit().putString("Address", "").apply();
-                    LoginActivity.prefs.edit().putString("Phone", "").apply();
-                    LoginActivity.prefs.edit().putString("ProfilePic", "").apply();
-                    LoginActivity.prefs.edit().putString("city", "").apply();
-                    LoginActivity.prefs.edit().putString("area", "").apply();
-                    LoginActivity.prefs.edit().putString("cityname", "").apply();
-                    LoginActivity.prefs.edit().putString("areaname", "").apply();
-                    LoginActivity.prefs.edit().putString("LoginMode", "").apply();
-                    LoginActivity.prefs.edit().putString("LoginStatus", "Logged out").apply();
-                    LoginActivity.prefs.edit().putString("Latitude", "").apply();
-                    LoginActivity.prefs.edit().putString("Latitude", "").apply();
-                    LoginActivity.prefs.edit().putString("Name", "").apply();
+                    new Logout().execute(LoginActivity.session);
 
-                    LoginActivity.prefs.edit().putString("Name", "").commit();
-                    LoginActivity.prefs.edit().putString("Email", "").commit();
-                    LoginActivity.prefs.edit().putString("Password", "").commit();
-                    LoginActivity.prefs.edit().putString("Login", "").commit();
-                    LoginActivity.prefs.edit().putString("Address", "").commit();
-                    LoginActivity.prefs.edit().putString("Phone", "").commit();
-                    LoginActivity.prefs.edit().putString("ProfilePic", "").commit();
-                    LoginActivity.prefs.edit().putString("city", "").commit();
-                    LoginActivity.prefs.edit().putString("area", "").commit();
-                    LoginActivity.prefs.edit().putString("cityname", "").commit();
-                    LoginActivity.prefs.edit().putString("areaname", "").commit();
-                    LoginActivity.prefs.edit().putString("LoginMode", "").commit();
-                    LoginActivity.prefs.edit().putString("LoginStatus", "Logged out").commit();
-                    LoginActivity.prefs.edit().putString("Latitude", "").commit();
-                    LoginActivity.prefs.edit().putString("Latitude", "").commit();
+                    logoutHandler = new Handler() {
+                        public void handleMessage(Message msg) {
+                            if (msg.arg1 == 1) {
+                                if(msg.arg2 ==1)
 
-                    if (modeOfLogin.equals("App")) {
-                        //TODO edit Shared prefs
-                        startActivity(new Intent(Master.this, LoginActivity.class));
-                        finish();
-                        dialog.dismiss();
-                    } else if (modeOfLogin.equals("Facebook")) {
-                        LoginActivity.facebookLoginFragment.callFacebookLogout(Master.this);
-                        startActivity(new Intent(Master.this, LoginActivity.class));
-                        finish();
-                        dialog.dismiss();
-                    } else if (modeOfLogin.equals("Google")) {
-                        LoginActivity.callGoogleLogout();
-                        startActivity(new Intent(Master.this, LoginActivity.class));
-                        finish();
-                        dialog.dismiss();
+                    if (Master.logoutSuccess) {
+                        if (modeOfLogin.equals("App")) {
+                            //TODO edit Shared prefs
+                            startActivity(new Intent(Master.this, LoginActivity.class));
+                            finish();
+                            dialog.dismiss();
+                        } else if (modeOfLogin.equals("Facebook")) {
+                            LoginActivity.facebookLoginFragment.callFacebookLogout(Master.this);
+                            startActivity(new Intent(Master.this, LoginActivity.class));
+                            finish();
+                            dialog.dismiss();
+                        } else if (modeOfLogin.equals("Google")) {
+                            LoginActivity.callGoogleLogout();
+                            startActivity(new Intent(Master.this, LoginActivity.class));
+                            finish();
+                            dialog.dismiss();
+                        }
                     }
-
-
                 }
+                        }
+                    };
+                };
+
             });
             logoutAlert.setNegativeButton("No", new DialogInterface.OnClickListener() {
                 @Override
@@ -1324,9 +1306,10 @@ public class Master extends ActionBarActivity {
         private RecyclerView categoryRecycleView, subcategoryRecycleView, productsRecyclerView;
         private CategoryCardAdapter mAdapter2;
         private SubcategoryCardAdapter mAdapter3;
-        private SwipeRefreshLayout swipeRefreshLayoutProducts;
+        private static SwipeRefreshLayout swipeRefreshLayoutProducts;
         private int catID,subcatID;
         private int[] categoryImageURL = {R.drawable.personalcare, R.drawable.brandedfoods, R.drawable.groceries};
+        private static FragmentManager fragManag;
 
         public ProductsFragment() {
         }
@@ -1336,10 +1319,24 @@ public class Master extends ActionBarActivity {
                                  Bundle savedInstanceState) {
             final View rootView1 = inflater.inflate(R.layout.fragment_category, container, false);
 
+            fragManag = getFragmentManager();
+
+            /*if (savedInstanceState == null) {
+                fragManag
+                        .beginTransaction()
+                        .add(R.id.item_container, new CardFrontFragment())
+                        .commit();
+            }*/
+
+            if(MainActivity.internetConnection.isConnectingToInternet())
             if (numCategories > 0)
                 for (int i = 0; i < numCategories; i++) {
                     listOfCateg.add(i, new CategoryCardClass(categoryName.get(i), categoryImageURL[i]));
                 }
+
+            else{
+                listOfCateg.clear();
+            }
 
             swipeRefreshLayoutProducts = (SwipeRefreshLayout) rootView1.findViewById(R.id.swipeToRefresh_Products);
 
@@ -1379,8 +1376,8 @@ public class Master extends ActionBarActivity {
 
                         listOfSubCateg = new ArrayList<>();
 
-                            for (int i = 0; i < numSubCategories[msg.arg2]; i++) {
-                                listOfSubCateg.add(i, new SubcategoryCardClass(subcategoryName.get(msg.arg2)[i], 0));
+                            for (int i = 0; i < numSubCategories[msg.arg2-1]; i++) {
+                                listOfSubCateg.add(i, new SubcategoryCardClass(subcategoryName.get(msg.arg2-1)[i], 0));
                                 //TODO change this to image URL received from db
                             }
 
@@ -1404,7 +1401,8 @@ public class Master extends ActionBarActivity {
                         mAdapter3 = new SubcategoryCardAdapter(listOfSubCateg, rootView1.getContext());
                         subcategoryRecycleView.setAdapter(mAdapter3);
 
-                        new LoadItems().execute(String.valueOf(catID),String.valueOf(subcatID));
+                        if(MainActivity.internetConnection.isConnectingToInternet())
+                            new LoadItems().execute(String.valueOf(catID), String.valueOf(subcatID));
 
                         rootView1.findViewById(R.id.category).setVisibility(View.INVISIBLE);
                         rootView1.findViewById(R.id.subcategory).setVisibility(View.VISIBLE);
@@ -1420,8 +1418,12 @@ public class Master extends ActionBarActivity {
 
                         listOfItems = new ArrayList<>();
 
+                        if(numProducts!=0)
                         for(int i=0;i<numProducts;i++)
-                            listOfItems.add(i, new ItemDetailsClass(productsName.get(i),"a")); //TODO change this to URL from db
+                            listOfItems.add(i, new ItemDetailsClass(productsName.get(i),"1")); //TODO change this to URL from db
+
+                        else
+                            listOfItems = null;
 
                         mAdapter1 = new ItemsCardAdapter(listOfItems, rootView1.getContext());
                         productsRecyclerView.setAdapter(mAdapter1);
@@ -1477,6 +1479,7 @@ public class Master extends ActionBarActivity {
             });
 
             return rootView1;
+
         }
 
         private void refreshItems() {
@@ -1485,10 +1488,81 @@ public class Master extends ActionBarActivity {
                 @Override
                 public void run() {
                     new LoadItems().execute(String.valueOf(catID),String.valueOf(subcatID));
-                    swipeRefreshLayoutProducts.setRefreshing(false);
                 }
             });
         }
+
+        private static void flipCards(String s){
+            if(s.equals("cur_front"))
+                fragManag.beginTransaction().setCustomAnimations(R.animator.card_flip_right_in,R.animator.card_flip_right_out,
+                    R.animator.card_flip_left_in,R.animator.card_flip_left_out)
+                        .replace(R.id.item_container, new CardBackFragment())
+                            .commit();
+
+            else if(s.equals("cur_back"))
+                fragManag.beginTransaction().setCustomAnimations(R.animator.card_flip_left_in,R.animator.card_flip_left_out,
+                    R.animator.card_flip_right_in,R.animator.card_flip_right_out)
+                        .replace(R.id.item_container, new CardFrontFragment())
+                            .commit();
+        }
+
+        public static class CardFrontFragment extends Fragment {
+            private Button btnAdd;
+            private FrameLayout itemCardFrame;
+
+            public CardFrontFragment(){
+
+            }
+            @Override
+            public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                     Bundle savedInstanceState) {
+                View rootView = inflater.inflate(R.layout.items_card_front,container,false);
+
+                btnAdd = (Button) rootView.findViewById(R.id.buttonAdd);
+                itemCardFrame = (FrameLayout) rootView.findViewById(R.id.item_card_frame);
+
+                itemCardFrame.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent itemDescriptionIntent = new Intent(getActivity(),ParallaxToolbarScrollViewActivity.class);
+                        itemDescriptionIntent.putExtra("Description","");
+                        startActivity(itemDescriptionIntent);
+                    }
+                });
+                btnAdd.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(getActivity().getApplicationContext(),"Clicked",Toast.LENGTH_SHORT).show();
+                        flipCards("cur_front");
+                    }
+                });
+                return rootView;
+            }
+        }
+
+        public static class CardBackFragment extends Fragment {
+            private Button btnAddToCart;
+            public CardBackFragment(){
+
+            }
+            @Override
+            public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                     Bundle savedInstanceState) {
+                View rootView = inflater.inflate(R.layout.items_card_back,container,false);
+
+                btnAddToCart = (Button) rootView.findViewById(R.id.buttonAddToCart);
+
+                btnAddToCart.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //TODO add to cart from here
+                    }
+                });
+
+                return rootView;
+            }
+        }
+
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -1745,19 +1819,24 @@ public class Master extends ActionBarActivity {
             itemsReturnedJSON = jsonParser.makeServiceCall(itemsURL, ServiceHandler.POST, paramsItems);
             if (itemsReturnedJSON != null) {
                 try{
-                    loadItemsSuccess = true;
+
                     Log.i("itemsReturnedJSON",itemsReturnedJSON);
                     JSONObject itemsJSON = new JSONObject(itemsReturnedJSON);
                     if(itemsJSON.getString("success").equals("true")){
 
-                        JSONArray itemsList = new JSONArray(itemsJSON.getJSONArray("items")); //TODO change the key name
-                        numProducts = itemsJSON.getInt("itemCount"); //TODO change the key name
+                        loadItemsSuccess = true;
+                        JSONArray itemsList = new JSONArray(String.valueOf(itemsJSON.getJSONArray("items"))); //TODO change the key name
+                        numProducts = itemsJSON.getInt("itemCount");
                         productsID = new int[numProducts];
+                        productDesc = new ArrayList<>();
+                        //productsName = new ArrayList<>();
 
                         for(int i=0;i<numProducts;i++) {
                             JSONObject tempItemJSON = new JSONObject(String.valueOf(itemsList.getJSONObject(i)));
-                            productsID[i] = tempItemJSON.getInt("PID"); //TODO change the key name
-                            productsName.add(i, tempItemJSON.getString("product")); //TODO change the key name
+                            Log.i("tempItems", String.valueOf(tempItemJSON));
+                            productsID[i] = tempItemJSON.getInt("PID");
+                            productsName.add(i, tempItemJSON.getString("name"));
+                           // productDesc.add(i, tempItemJSON.getString("description"));
                         }
                     }
                     else
@@ -1779,6 +1858,9 @@ public class Master extends ActionBarActivity {
                 loadItemsProgress.hide();
                 loadItemsProgress.dismiss();
             }
+
+            if(ProductsFragment.swipeRefreshLayoutProducts.isRefreshing())
+                ProductsFragment.swipeRefreshLayoutProducts.setRefreshing(false);
 
             if(loadItemsSuccess) {
                 Message itemsMsg = new Message();
@@ -1845,6 +1927,106 @@ public class Master extends ActionBarActivity {
 
     }
 
+    private class Logout extends AsyncTask<String, Void, String> {
+
+        private boolean logoutSuccess = false;
+        @Override
+        protected void onPreExecute() {
+            Log.i("Inside PreExecute", "True");
+            logoutProgress.setTitle("Logging out...");
+            logoutProgress.setCancelable(false);
+            logoutProgress.show();
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            Log.i("Inside Background", "True");
+
+            List<NameValuePair> paramsItems = new ArrayList<NameValuePair>();
+
+            paramsItems.add(new BasicNameValuePair("session", params[0]));
+            ServiceHandler jsonParser = new ServiceHandler();
+            logoutReturnedJSON = jsonParser.makeServiceCall(logoutURL, ServiceHandler.POST, paramsItems);
+            if (logoutReturnedJSON != null) {
+                try {
+                    Log.i("logoutReturnedJSON", logoutReturnedJSON);
+                    JSONObject logoutJSON = new JSONObject(logoutReturnedJSON);
+                    if (logoutJSON.getString("success").equals("true")) {
+                        logoutSuccess = true;
+                        Master.logoutSuccess = true;
+                    } else {
+                        logoutSuccess = false;
+                        Master.logoutSuccess = false;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Log.i("Inside PostExecute", "True");
+            super.onPostExecute(result);
+
+            if ( logoutProgress != null && logoutProgress.isShowing()) {
+                logoutProgress.hide();
+                logoutProgress.dismiss();
+            }
+
+            if(logoutSuccess) {
+                LoginActivity.prefs.edit().putString("Email", "").apply();
+                LoginActivity.prefs.edit().putString("Password", "").apply();
+                LoginActivity.prefs.edit().putString("Login", "").apply();
+                LoginActivity.prefs.edit().putString("Address", "").apply();
+                LoginActivity.prefs.edit().putString("Phone", "").apply();
+                LoginActivity.prefs.edit().putString("ProfilePic", "").apply();
+                LoginActivity.prefs.edit().putString("city", "").apply();
+                LoginActivity.prefs.edit().putString("area", "").apply();
+                LoginActivity.prefs.edit().putString("cityname", "").apply();
+                LoginActivity.prefs.edit().putString("areaname", "").apply();
+                LoginActivity.prefs.edit().putString("LoginMode", "").apply();
+                LoginActivity.prefs.edit().putString("LoginStatus", "Logged out").apply();
+                LoginActivity.prefs.edit().putString("Latitude", "").apply();
+                LoginActivity.prefs.edit().putString("Latitude", "").apply();
+                LoginActivity.prefs.edit().putString("Name", "").apply();
+
+                LoginActivity.prefs.edit().putString("Name", "").commit();
+                LoginActivity.prefs.edit().putString("Email", "").commit();
+                LoginActivity.prefs.edit().putString("Password", "").commit();
+                LoginActivity.prefs.edit().putString("Login", "").commit();
+                LoginActivity.prefs.edit().putString("Address", "").commit();
+                LoginActivity.prefs.edit().putString("Phone", "").commit();
+                LoginActivity.prefs.edit().putString("ProfilePic", "").commit();
+                LoginActivity.prefs.edit().putString("city", "").commit();
+                LoginActivity.prefs.edit().putString("area", "").commit();
+                LoginActivity.prefs.edit().putString("cityname", "").commit();
+                LoginActivity.prefs.edit().putString("areaname", "").commit();
+                LoginActivity.prefs.edit().putString("LoginMode", "").commit();
+                LoginActivity.prefs.edit().putString("LoginStatus", "Logged out").commit();
+                LoginActivity.prefs.edit().putString("Latitude", "").commit();
+                LoginActivity.prefs.edit().putString("Latitude", "").commit();
+
+                Message msg = new Message();
+                msg.arg1 = 1;
+                msg.arg2 = 1;
+                logoutHandler.sendMessage(msg);
+
+            }
+
+            else if(MainActivity.internetConnection.isConnectingToInternet())
+                Toast.makeText(getApplicationContext(),"No network connection available",Toast.LENGTH_SHORT).show();
+
+            else
+                Toast.makeText(getApplicationContext(),"Unable to connect",Toast.LENGTH_SHORT).show();
+
+        }
+
+        }
 }
+
+
 
 
