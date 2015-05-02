@@ -25,6 +25,7 @@
             android:layout_marginTop="15dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:prompt="@string/select_city"
             android:background="@android:drawable/btn_dropdown"
             android:spinnerMode="dropdown">
 
@@ -47,6 +48,7 @@
                 android:layout_marginTop="15dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:prompt="@string/select_area"
                 android:background="@android:drawable/btn_dropdown"
                 android:spinnerMode="dropdown">
 

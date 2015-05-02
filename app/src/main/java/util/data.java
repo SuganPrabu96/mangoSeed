@@ -13,6 +13,8 @@ public class data {
             new NavDrawerItem("General Settings", R.drawable.ic_launcher),
             new NavDrawerItem("Notifications", R.drawable.ic_launcher),
             new NavDrawerItem("Order History", R.drawable.ic_launcher),
+            new NavDrawerItem("Offers", R.drawable.ic_launcher),
+            new NavDrawerItem("My wallet", R.drawable.ic_launcher),
             new NavDrawerItem("About", R.drawable.ic_launcher),
             new NavDrawerItem("Help", R.drawable.ic_launcher),
             new NavDrawerItem("Logout", R.drawable.ic_launcher)

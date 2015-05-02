@@ -10,6 +10,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -31,8 +32,7 @@ public class LocationFromMap extends FragmentActivity
     private LocationListener myLocationListener;
     private ProgressDialog p1;
     private boolean locationChanged=false;
-    private GoogleMap gmap=null;
-
+    private Handler locUpdateHandler;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,12 +45,13 @@ public class LocationFromMap extends FragmentActivity
             location[1] = 1000.0;
         }
 
+        locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+
         if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             p1.setCancelable(true);
             p1.setTitle("Getting location...");
             p1.show();
 
-            locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
             myLocationListener = new LocationListener() {
 
                 @Override
@@ -62,7 +63,6 @@ public class LocationFromMap extends FragmentActivity
                     Log.i("Location Accuracy", String.valueOf(location.getAccuracy()));
 
                     locationManager.removeUpdates(myLocationListener);
-                    CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),location.getLongitude()));
 
                     if (p1.isShowing()) {
                         p1.hide();
@@ -71,12 +71,16 @@ public class LocationFromMap extends FragmentActivity
 
                     locationChanged=true;
 
-                    if(locationChanged==true){
+                    Message msg = new Message();
+                    msg.arg1=1;
+                    locUpdateHandler.sendMessage(msg);
+
+                    /*if(locationChanged==true){
                         if(gmap!=null)
                             gmap.addMarker(new MarkerOptions()
                                     .position(new LatLng(LocationFromMap.location[0],LocationFromMap.location[1]))
                                     .title("Marker"));
-                    }
+                    }*/
                 }
 
                 @Override
@@ -114,8 +118,6 @@ public class LocationFromMap extends FragmentActivity
     @Override
     public void onMapReady(final GoogleMap map){
 
-        gmap=map;
-
         Log.i("Location[0]",String.valueOf(LocationFromMap.location[0]));
         Log.i("Location[1]", String.valueOf(LocationFromMap.location[1]));
 
@@ -135,6 +137,18 @@ public class LocationFromMap extends FragmentActivity
                     .title("Marker"));
         }
 
+
+        locUpdateHandler = new Handler() {
+            public void handleMessage(Message msg) {
+                if (msg.arg1 == 1) {
+                    map.addMarker(new MarkerOptions()
+                            .position(new LatLng(LocationFromMap.location[0],LocationFromMap.location[1]))
+                            .title("Marker"));
+                    CameraUpdateFactory.newLatLng(new LatLng(LocationFromMap.location[0],LocationFromMap.location[1]));
+
+                }
+            }
+        };
 
         map.setIndoorEnabled(false);
         map.setBuildingsEnabled(true);

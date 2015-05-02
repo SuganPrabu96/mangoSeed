@@ -88,8 +88,9 @@ public class Master extends ActionBarActivity {
     public static ImageView profileIcon;
     public static CircleImageView googleProfileIcon;
     public static String modeOfLogin;
-    public static int numCategories, numSubCategories[], categoryID[], productsID[], numProducts, newProductsID[];
-    public static ArrayList<String> categoryName, productsName, productDesc, newProductsName;
+    public static int numCategories, numSubCategories[], categoryID[], productsID[], numProducts,
+                  newProductsID[], newProductsCatId[], newProductsSubCatId[];
+    public static ArrayList<String> categoryName, productsName, productDesc;
     public static ArrayList<int[]> subcategoryID;
     public static ArrayList<String[]> subcategoryName;
     private final String categoriesURL = "http://grokart.ueuo.com/listCategories.php";
@@ -112,7 +113,7 @@ public class Master extends ActionBarActivity {
     private static String itemsReturnedJSON, itemsURLReturnedJSON, logoutReturnedJSON, newItemsReturnedJSON;
     private static String updateDetailsReturnedJSON;
     public static ProgressDialog updateProgress, locationProgress, loadItemsProgress, logoutProgress, loadCatSubCatProgress,
-                                 loadNewItemsProgress;
+            loadNewItemsProgress;
     public static Handler locationHandler, logoutHandler, loadItems, loadItemImages, newItemsHandler;
     public static boolean logoutSuccess = false;
     static ArrayList<CartItemsClass> cartitems = new ArrayList<>();
@@ -132,7 +133,6 @@ public class Master extends ActionBarActivity {
 
         categoryName = new ArrayList();
         productsName = new ArrayList();
-        newProductsName = new ArrayList<>();
 
         updateProgress = new ProgressDialog(Master.this);
         locationProgress = new ProgressDialog(Master.this);
@@ -218,6 +218,17 @@ public class Master extends ActionBarActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setIcon(R.drawable.ic_drawer);
         mDrawerToggle.syncState();
+
+
+        Master.locationHandler = new Handler() {
+            public void handleMessage(Message msg) {
+                if (msg.arg1 == 1) {
+                    if (msg.arg2 == 1) {
+                        new LocationDetails().execute(String.valueOf(LocationFromMap.location[0]), String.valueOf(LocationFromMap.location[1]), LoginActivity.session);
+                    }
+                }
+            }
+        };
 
     }
 
@@ -335,15 +346,7 @@ public class Master extends ActionBarActivity {
             else
                 actionBar.setTitle(location[1]);
 
-            locationHandler = new Handler() {
-                public void handleMessage(Message msg) {
-                    if (msg.arg1 == 1) {
-                        if (msg.arg2 == 1) {
-                            new LocationDetails().execute(String.valueOf(LocationFromMap.location[0]), String.valueOf(LocationFromMap.location[1]), LoginActivity.session);
-                        }
-                    }
-                }
-            };
+
         }
 
     }
@@ -372,11 +375,15 @@ public class Master extends ActionBarActivity {
             fragmentTransaction.replace(R.id.frame_container, new NotificationsFragment());
         } else if (position == 4) {
             fragmentTransaction.replace(R.id.frame_container, new OrderHistoryFragment());
-        } else if (position == 5) {
-            fragmentTransaction.replace(R.id.frame_container, new AboutFragment());
-        } else if (position == 6) {
-            fragmentTransaction.replace(R.id.frame_container, new HelpFragment());
+        } else if(position == 5){
+            fragmentTransaction.replace(R.id.frame_container,new OffersFragment());
+        } else if(position == 6){
+            fragmentTransaction.replace(R.id.frame_container, new MyWalletFragment());
         } else if (position == 7) {
+            fragmentTransaction.replace(R.id.frame_container, new AboutFragment());
+        } else if (position == 8) {
+            fragmentTransaction.replace(R.id.frame_container, new HelpFragment());
+        } else if (position == 9) {
             final AlertDialog.Builder logoutAlert = new AlertDialog.Builder(Master.this);
 
             logoutAlert.setCancelable(false);
@@ -394,25 +401,25 @@ public class Master extends ActionBarActivity {
                             if (msg.arg1 == 1) {
                                 if(msg.arg2 ==1)
 
-                    if (Master.logoutSuccess) {
-                        if (modeOfLogin.equals("App")) {
-                            //TODO edit Shared prefs
-                            startActivity(new Intent(Master.this, LoginActivity.class));
-                            finish();
-                            dialog.dismiss();
-                        } else if (modeOfLogin.equals("Facebook")) {
-                            LoginActivity.facebookLoginFragment.callFacebookLogout(Master.this);
-                            startActivity(new Intent(Master.this, LoginActivity.class));
-                            finish();
-                            dialog.dismiss();
-                        } else if (modeOfLogin.equals("Google")) {
-                            LoginActivity.callGoogleLogout();
-                            startActivity(new Intent(Master.this, LoginActivity.class));
-                            finish();
-                            dialog.dismiss();
-                        }
-                    }
-                }
+                                    if (Master.logoutSuccess) {
+                                        if (modeOfLogin.equals("App")) {
+                                            //TODO edit Shared prefs
+                                            startActivity(new Intent(Master.this, LoginActivity.class));
+                                            finish();
+                                            dialog.dismiss();
+                                        } else if (modeOfLogin.equals("Facebook")) {
+                                            LoginActivity.facebookLoginFragment.callFacebookLogout(Master.this);
+                                            startActivity(new Intent(Master.this, LoginActivity.class));
+                                            finish();
+                                            dialog.dismiss();
+                                        } else if (modeOfLogin.equals("Google")) {
+                                            LoginActivity.callGoogleLogout();
+                                            startActivity(new Intent(Master.this, LoginActivity.class));
+                                            finish();
+                                            dialog.dismiss();
+                                        }
+                                    }
+                            }
                         }
                     };
                 };
@@ -429,20 +436,26 @@ public class Master extends ActionBarActivity {
 
             if (f instanceof ProductsFragment) {
                 fragmentTransaction.replace(R.id.frame_container, new ProductsFragment());
+
             } else if (f instanceof MyAccountFragment) {
                 fragmentTransaction.replace(R.id.frame_container, new MyAccountFragment());
+
             } else if (f instanceof GeneralSettingsFragment) {
                 fragmentTransaction.replace(R.id.frame_container, new GeneralSettingsFragment());
+
+            } else if(f instanceof MyWalletFragment) {
+                fragmentTransaction.replace(R.id.frame_container, new MyWalletFragment());
+
+            } else if(f instanceof OffersFragment){
+                fragmentTransaction.replace(R.id.frame_container, new OffersFragment());
 
             } else if (f instanceof HelpFragment) {
                 fragmentTransaction.replace(R.id.frame_container, new HelpFragment());
 
             } else if (f instanceof AboutFragment) {
-
                 fragmentTransaction.replace(R.id.frame_container, new AboutFragment());
 
             } else if (f instanceof NotificationsFragment) {
-
                 fragmentTransaction.replace(R.id.frame_container, new NotificationsFragment());
 
             }
@@ -452,7 +465,7 @@ public class Master extends ActionBarActivity {
         fragmentTransaction.commit();
         // Highlight the selected item, update the title, and close the drawer
         drawerList.setItemChecked(position, true);
-        if (position != 7) {
+        if (position != 9) {
             for (int i = 0; i < drawerList.getChildCount(); i++)
                 drawerList.getChildAt(i).setBackgroundColor(getResources().getColor(R.color.NavigationBarUnselectedItem));
             drawerList.getChildAt(position).setBackgroundColor(getResources().getColor(R.color.NavigationBarSelectedItem));
@@ -498,33 +511,26 @@ public class Master extends ActionBarActivity {
         }
 
         /*if (id == R.id.menu_master_location) {
-
             String[] loc_city = {"Chennai"};
             String[] loc_area = {"Adyar","Ambattur","Anna Nagar","Ashok Nagar","Avadi","Chrompet","Guindy","K.K Nagar","Kilpauk","Kodambakkam","Koyambedu","Mylapore","Nungambakkam","Pallavaram","Saidapet","Tambaram","T Nagar","Vadapalani","Velachery"};
-
             locationDialog = new Dialog(Master.this);
             locationDialog.setContentView(R.layout.choose_location);
             locationDialog.setCancelable(true);
             locationDialog.getWindow().setLayout(WindowManager.LayoutParams.FILL_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
             locationDialog.setTitle("Location");
             locationDialog.show();
-
             final Spinner city = (Spinner) locationDialog.findViewById(R.id.spinnerLocationCity);
             final Spinner area = (Spinner) locationDialog.findViewById(R.id.spinnerLocationArea);
-
             ArrayAdapter<String> adapter_area = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, loc_area);
             area.setAdapter(adapter_area);
-
             ArrayAdapter<String> adapter_city = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, loc_city);
             city.setAdapter(adapter_city);
-
             for(int i=0;i<city.getCount();i++){
                 if(city.getItemAtPosition(i).equals(location[0])){
                     city.setSelection(i);
                     break;
                 }
             }
-
             for(int i=0;i<area.getCount();i++){
                 if(area.getItemAtPosition(i).equals(location[1])){
                     area.setSelection(i);
@@ -532,38 +538,29 @@ public class Master extends ActionBarActivity {
                     break;
                 }
             }
-
             if(!LoginActivity.prefs.getString("city","").equals("")) {
                 city.setSelection(Integer.parseInt(LoginActivity.prefs.getString("city", "")));
                 Log.i("city",LoginActivity.prefs.getString("city",""));
             }
-
             if(!LoginActivity.prefs.getString("area","").equals("")) {
                 area.setSelection(Integer.parseInt(LoginActivity.prefs.getString("area", "")));
                 Log.i("area",LoginActivity.prefs.getString("area",""));
             }
-
             location[0] = city.getSelectedItem().toString();
             location[1] = area.getSelectedItem().toString();
-
             actionBar.setTitle(location[1]);
-
             city.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     location[0] = city.getSelectedItem().toString();
                     LoginActivity.prefs.edit().putString("city",String.valueOf(id)).apply();
                     LoginActivity.prefs.edit().putString("city",String.valueOf(id)).commit();
-
                     LoginActivity.prefs.edit().putString("cityname",location[0]).apply();
                 }
-
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
-
                 }
             });
-
             area.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -571,18 +568,14 @@ public class Master extends ActionBarActivity {
                     actionBar.setTitle(location[1]);
                     LoginActivity.prefs.edit().putString("area",String.valueOf(id)).apply();
                     LoginActivity.prefs.edit().putString("area",String.valueOf(id)).commit();
-
                     Log.i("location[1]",location[1]);
                     LoginActivity.prefs.edit().putString("areaname",location[1]).apply();
                     Log.i("areaname",LoginActivity.prefs.getString("areaname",""));
                 }
-
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
-
                 }
             });
-
             return true;
         }*/
 
@@ -703,7 +696,6 @@ public class Master extends ActionBarActivity {
     public void getLocationFromMap() {
 
         /*LocationFromMap.locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
         LocationFromMap.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
@@ -712,20 +704,14 @@ public class Master extends ActionBarActivity {
                 Log.i("Lat",String.valueOf(LocationFromMap.location[0]));
                 Log.i("Long",String.valueOf(LocationFromMap.location[1]));
             }
-
             @Override
             public void onStatusChanged(String provider, int status, Bundle extras) {
-
             }
-
             @Override
             public void onProviderEnabled(String provider) {
-
             }
-
             @Override
             public void onProviderDisabled(String provider) {
-
             }
         });
 */
@@ -737,23 +723,16 @@ public class Master extends ActionBarActivity {
                 Log.i("Lat",String.valueOf(location[0]));
                 Log.i("Long",String.valueOf(location[1]));
             }
-
             @Override
             public void onStatusChanged(String provider, int status, Bundle extras) {
-
             }
-
             @Override
             public void onProviderEnabled(String provider) {
-
             }
-
             @Override
             public void onProviderDisabled(String provider) {
-
             }
         });
-
 */
         Intent locationIntent = new Intent(Master.this, LocationFromMap.class);
         startActivity(locationIntent);
@@ -829,6 +808,43 @@ public class Master extends ActionBarActivity {
             return rootView;
         }
     }
+
+    public static class OffersFragment extends Fragment{
+
+        public OffersFragment(){
+
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+
+
+            View rootView = inflater.inflate(R.layout.fragment_offers, container, false);
+
+            return rootView;
+
+        }
+    }
+
+    public static class MyWalletFragment extends Fragment{
+
+        public MyWalletFragment(){
+
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+
+
+            View rootView = inflater.inflate(R.layout.fragment_my_wallet, container, false);
+
+            return rootView;
+
+        }
+    }
+
 
     public static class HelpFragment extends Fragment {
 
@@ -1398,14 +1414,14 @@ public class Master extends ActionBarActivity {
             }*/
 
             if(MainActivity.internetConnection.isConnectingToInternet())
-            if (numCategories > 0)
-                for (int i = 0; i < numCategories; i++) {
-                    listOfCateg.add(i, new CategoryCardClass(categoryName.get(i), categoryImageURL[i]));
-                }
+                if (numCategories > 0)
+                    for (int i = 0; i < numCategories; i++) {
+                        listOfCateg.add(i, new CategoryCardClass(categoryName.get(i), categoryImageURL[i]));
+                    }
 
-            else{
-                listOfCateg.clear();
-            }
+                else{
+                    listOfCateg.clear();
+                }
 
             swipeRefreshLayoutProducts = (SwipeRefreshLayout) rootView1.findViewById(R.id.swipeToRefresh_Products);
 
@@ -1445,10 +1461,10 @@ public class Master extends ActionBarActivity {
 
                         listOfSubCateg = new ArrayList<>();
 
-                            for (int i = 0; i < numSubCategories[msg.arg2-1]; i++) {
-                                listOfSubCateg.add(i, new SubcategoryCardClass(subcategoryName.get(msg.arg2-1)[i], 0));
-                                //TODO change this to image URL received from db
-                            }
+                        for (int i = 0; i < numSubCategories[msg.arg2-1]; i++) {
+                            listOfSubCateg.add(i, new SubcategoryCardClass(subcategoryName.get(msg.arg2-1)[i], 0));
+                            //TODO change this to image URL received from db
+                        }
 
                         mAdapter3 = new SubcategoryCardAdapter(listOfSubCateg, rootView1.getContext());
                         subcategoryRecycleView.setAdapter(mAdapter3);
@@ -1487,9 +1503,11 @@ public class Master extends ActionBarActivity {
 
                         listOfItems = new ArrayList<>();
 
+                        Log.i("numProducts", String.valueOf(numProducts));
+                        Log.i("productsNameLength", String.valueOf(productsName.size()));
                         if(numProducts!=0)
-                        for(int i=0;i<numProducts;i++)
-                            listOfItems.add(i, new ItemDetailsClass(productsName.get(i),"1")); //TODO change this to URL from db
+                            for(int i=0;i<numProducts;i++)
+                                listOfItems.add(i, new ItemDetailsClass(productsName.get(i),"1")); //TODO change this to URL from db
 
                         else
                             listOfItems = null;
@@ -1584,15 +1602,15 @@ public class Master extends ActionBarActivity {
         private static void flipCards(String s){
             if(s.equals("cur_front"))
                 fragManag.beginTransaction().setCustomAnimations(R.animator.card_flip_right_in,R.animator.card_flip_right_out,
-                    R.animator.card_flip_left_in,R.animator.card_flip_left_out)
+                        R.animator.card_flip_left_in,R.animator.card_flip_left_out)
                         .replace(R.id.item_container, new CardBackFragment())
-                            .commit();
+                        .commit();
 
             else if(s.equals("cur_back"))
                 fragManag.beginTransaction().setCustomAnimations(R.animator.card_flip_left_in,R.animator.card_flip_left_out,
-                    R.animator.card_flip_right_in,R.animator.card_flip_right_out)
+                        R.animator.card_flip_right_in,R.animator.card_flip_right_out)
                         .replace(R.id.item_container, new CardFrontFragment())
-                            .commit();
+                        .commit();
         }
 
         public static class CardFrontFragment extends Fragment {
@@ -1696,7 +1714,7 @@ public class Master extends ActionBarActivity {
                     Log.i("newItemsReturnedJSON", newItemsReturnedJSON);
                     JSONObject newItemsJSON = new JSONObject(newItemsReturnedJSON);
                     if (newItemsJSON.getString("success").equals("true")) {
-
+                        //TODO store the catID, subcatID, prodID here
                     } else {
 
                     }
@@ -1886,69 +1904,76 @@ public class Master extends ActionBarActivity {
         }
 
     }
-        public class LocationDetails extends AsyncTask<String, Void, String> {
+    public class LocationDetails extends AsyncTask<String, Void, String> {
 
-            private boolean locationDetailsSuccess = false;
-            @Override
-            protected void onPreExecute() {
-                Log.i("Inside PreExecute", "True");
-                locationProgress.setTitle("Updating");
-                locationProgress.setCancelable(false);
-                locationProgress.show();
-            }
-
-            @Override
-            protected String doInBackground(String... params) {
-                Log.i("Inside Background", "True");
-
-                List<NameValuePair> paramsLocation = new ArrayList<NameValuePair>();
-
-                paramsLocation.add(new BasicNameValuePair("latitude",params[0]));
-                paramsLocation.add(new BasicNameValuePair("longitude",params[1]));
-                paramsLocation.add(new BasicNameValuePair("session", LoginActivity.session));
-                ServiceHandler jsonParser = new ServiceHandler();
-                locationReturnedJSON = jsonParser.makeServiceCall(locationURL, ServiceHandler.POST, paramsLocation);
-                if (locationReturnedJSON != null) {
-                    try{
-                        Log.i("locationReturnedJSON",locationReturnedJSON);
-                        JSONObject locationJSON = new JSONObject(locationReturnedJSON);
-                        if(locationJSON.getString("success").equals("true")){
-                            locationDetailsSuccess = true;
-                            //TODO load items from this place
-                        }
-                        else
-                            locationDetailsSuccess = false;
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(String result) {
-                Log.i("Inside PostExecute", "True");
-                super.onPostExecute(result);
-                if(locationProgress!=null && locationProgress.isShowing())
-                {
-                    locationProgress.hide();
-                    locationProgress.dismiss();
-                }
-
-                if(!locationDetailsSuccess)
-                    Toast.makeText(getApplicationContext(),"Unable to load products",Toast.LENGTH_SHORT).show();
-                else {
-                    new LoadCatSubCat().execute();
-                    new NewItems().execute(LoginActivity.session, String.valueOf(System.currentTimeMillis()));
-                }
-            }
-
+        private boolean locationDetailsSuccess = false;
+        @Override
+        protected void onPreExecute() {
+            Log.i("Inside PreExecute", "True");
+            locationProgress.setTitle("Updating");
+            locationProgress.setCancelable(false);
+            locationProgress.show();
         }
+
+        @Override
+        protected String doInBackground(String... params) {
+            Log.i("Inside Background", "True");
+
+            List<NameValuePair> paramsLocation = new ArrayList<NameValuePair>();
+
+            paramsLocation.add(new BasicNameValuePair("latitude",params[0]));
+            paramsLocation.add(new BasicNameValuePair("longitude",params[1]));
+            paramsLocation.add(new BasicNameValuePair("session", LoginActivity.session));
+            ServiceHandler jsonParser = new ServiceHandler();
+            locationReturnedJSON = jsonParser.makeServiceCall(locationURL, ServiceHandler.POST, paramsLocation);
+            if (locationReturnedJSON != null) {
+                try{
+                    Log.i("locationReturnedJSON",locationReturnedJSON);
+                    JSONObject locationJSON = new JSONObject(locationReturnedJSON);
+                    if(locationJSON.getString("success").equals("true")){
+                        locationDetailsSuccess = true;
+                        //TODO load items from this place
+                    }
+                    else
+                        locationDetailsSuccess = false;
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Log.i("Inside PostExecute", "True");
+            super.onPostExecute(result);
+            if(locationProgress!=null && locationProgress.isShowing())
+            {
+                locationProgress.hide();
+                locationProgress.dismiss();
+            }
+
+            if(!locationDetailsSuccess)
+                Toast.makeText(getApplicationContext(),"Unable to load products",Toast.LENGTH_SHORT).show();
+            else {
+                new LoadCatSubCat().execute();
+                new NewItems().execute(LoginActivity.session, String.valueOf(System.currentTimeMillis()));
+            }
+        }
+
+    }
 
     public static class LoadItems extends AsyncTask<String, Void, String> {
 
         private boolean loadItemsSuccess = false;
+        private int[] newItemsIDs, oldItemsIDs;
+        private String[] newItemsName, oldItemsNames;
+        private int tempProductsId;
+        private String tempProductsName;
+        private boolean newItemCatSuccess = false, newItemSubCatSuccess = false, newItemProductSuccess= false;
+        private int newID = 0, oldID = 0;
+
         @Override
         protected void onPreExecute() {
             Log.i("Inside PreExecute", "True");
@@ -1978,20 +2003,101 @@ public class Master extends ActionBarActivity {
                     JSONObject itemsJSON = new JSONObject(itemsReturnedJSON);
                     if(itemsJSON.getString("success").equals("true")){
 
+                        newID = 0;
+                        oldID =0;
                         loadItemsSuccess = true;
                         JSONArray itemsList = new JSONArray(String.valueOf(itemsJSON.getJSONArray("items"))); //TODO change the key name
+                        JSONObject tempItemJSON;
                         numProducts = itemsJSON.getInt("itemCount");
                         productsID = new int[numProducts];
+                        oldItemsIDs = new int[numProducts];
+                        newItemsIDs = new int[numProducts];
+                        oldItemsNames = new String[numProducts];
+                        newItemsName = new String[numProducts];
+
                         productDesc = new ArrayList<>();
-                        //productsName = new ArrayList<>();
+                        productsName = new ArrayList<>();
 
                         for(int i=0;i<numProducts;i++) {
-                            JSONObject tempItemJSON = new JSONObject(String.valueOf(itemsList.getJSONObject(i)));
+                            tempItemJSON = new JSONObject(String.valueOf(itemsList.getJSONObject(i)));
                             Log.i("tempItems", String.valueOf(tempItemJSON));
-                            productsID[i] = tempItemJSON.getInt("PID");
-                            productsName.add(i, tempItemJSON.getString("name"));
-                           // productDesc.add(i, tempItemJSON.getString("description"));
+
+                            tempProductsId = tempItemJSON.getInt("PID");
+                            tempProductsName = tempItemJSON.getString("name");
+
+                        if(newProductsCatId!=null)
+                            for(int j=0;j<newProductsCatId.length;j++){
+                                if(Integer.parseInt(params[0])==newProductsCatId[j]){
+                                    newItemCatSuccess = true;
+                                    break;
+                                }
+                                else
+                                    newItemCatSuccess = false;
+                            }
+
+                        if(newProductsSubCatId!=null)
+                            if(newItemCatSuccess){
+                                for(int j=0;j<newProductsSubCatId.length;j++){
+                                    if(Integer.parseInt(params[1])==newProductsSubCatId[j]){
+                                        newItemSubCatSuccess = true;
+                                        break;
+                                    }
+                                    else
+                                        newItemSubCatSuccess = false;
+                                }
+                            }
+
+                            if(newItemSubCatSuccess && newItemCatSuccess){
+                                for(int j=0;j<newProductsID.length;j++){
+                                    if(tempProductsId==newProductsID[j]){
+                                        newItemProductSuccess = true;
+                                        break;
+                                    }
+                                    else
+                                        newItemProductSuccess = false;
+                                }
+                            }
+
+                            if(newItemProductSuccess && newItemSubCatSuccess && newItemCatSuccess){
+                                newItemsIDs[newID] = tempProductsId;
+                                newItemsName[newID] = tempProductsName;
+                                newID++;
+                            }
+
+                            else{
+                                oldItemsIDs[oldID] = tempProductsId;
+                                oldItemsNames[oldID] = tempProductsName;
+                                oldID++;
+                            }
+
                         }
+
+                        Log.i("oldItemsNames",oldItemsNames[0]);
+                        Log.i("productsIdLength", String.valueOf(productsID.length));
+                        Log.i("oldIDLength", String.valueOf(oldItemsIDs.length));
+
+                        for(int i=0;i<newID;i++){
+                            productsID[i] = newItemsIDs[i];
+                            productsName.add(newItemsName[i]);
+                        }
+
+                        Log.i("productsNameStatus", String.valueOf(productsName.isEmpty()));
+                        if(!productsName.isEmpty())
+                        for(int j=productsID.length;j<(productsID.length+oldID);j++){
+                            productsID[j] = oldItemsIDs[j-productsID.length];
+                            productsName.add(oldItemsNames[j-productsID.length]);
+                        }
+
+                        else
+                        for(int j=0;j<oldID;j++){
+                            productsID[j] = oldItemsIDs[j];
+                            productsName.add(oldItemsNames[j]);
+                        }
+
+                        Log.i("productsLength", String.valueOf(productsName.size()));
+                        //productsID[i] = tempItemJSON.getInt("PID");
+                        //productsName.add(i, tempItemJSON.getString("name"));
+                        // productDesc.add(i, tempItemJSON.getString("description"));
                     }
                     else
                         ;
@@ -2008,10 +2114,10 @@ public class Master extends ActionBarActivity {
             Log.i("Inside PostExecute", "True");
             super.onPostExecute(result);
 
-                        if(loadItemsProgress!=null && loadItemsProgress.isShowing()) {
-                            loadItemsProgress.hide();
-                            loadItemsProgress.dismiss();
-                        }
+            if(loadItemsProgress!=null && loadItemsProgress.isShowing()) {
+                loadItemsProgress.hide();
+                loadItemsProgress.dismiss();
+            }
 
             if(ProductsFragment.swipeRefreshLayoutProducts.isRefreshing())
                 ProductsFragment.swipeRefreshLayoutProducts.setRefreshing(false);
@@ -2023,7 +2129,7 @@ public class Master extends ActionBarActivity {
 
             }
 
-           for(int i=0;i<numProducts;i++)
+            for(int i=0;i<numProducts;i++)
                 new LoadProductImages().execute(String.valueOf(productsID[i]));
 
         }
@@ -2178,9 +2284,5 @@ public class Master extends ActionBarActivity {
 
         }
 
-        }
+    }
 }
-
-
-
-

@@ -77,15 +77,24 @@
                         android:layout_height="wrap_content"
                         android:textSize="18sp"
                         android:text="Category"
-                        android:layout_weight="1"
+                        android:layout_weight="1.3"
                         android:id="@+id/subcategory_cat"/>
+
+                    <ImageView
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:layout_weight="0.4"
+                        android:scaleType="fitStart"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:src="@drawable/right_arrow"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="18sp"
                         android:text="Sub Category"
-                        android:layout_weight="1"
+                        android:layout_weight="1.3"
                         android:id="@+id/subcategory_subcat"/>
 
                 </LinearLayout>
@@ -107,7 +116,7 @@
                     android:orientation="horizontal"
                     android:layout_marginLeft="15dp"
                     android:layout_marginRight="15dp"
-                    android:weightSum="3"
+                    android:weightSum="5"
                     >
 
                     <TextView
@@ -118,6 +127,14 @@
                         android:layout_weight="1"
                         android:id="@+id/products_cat"/>
 
+                    <ImageView
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:layout_weight="1"
+                        android:scaleType="fitXY"
+                        android:layout_gravity="center"
+                        android:src="@drawable/right_arrow"/>
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -126,6 +143,14 @@
                         android:layout_weight="1"
                         android:id="@+id/products_subcat"
                         />
+
+                    <ImageView
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:layout_weight="1"
+                        android:scaleType="fitXY"
+                        android:layout_gravity="center"
+                        android:src="@drawable/right_arrow"/>
 
                     <TextView
                         android:layout_width="wrap_content"

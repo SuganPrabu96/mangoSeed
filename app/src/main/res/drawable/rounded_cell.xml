@@ -12,8 +12,8 @@
             android:topLeftRadius="100dp"
             android:topRightRadius="100dp"
             android:bottomRightRadius="100dp"/>
-        <size android:height="10dp"
-            android:width="10dp"/>
+        <size android:height="15dp"
+            android:width="15dp"/>
 
     </shape>
 </inset>

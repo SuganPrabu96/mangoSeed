@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="e_commerce.e_commerce">
+    package="e_commerce.e_commerce" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -16,7 +16,6 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
 
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -31,7 +30,7 @@
 
         <activity
             android:name=".MainActivity"
-            android:label="@string/title_activity_main">
+            android:label="@string/title_activity_main" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -40,14 +39,14 @@
         </activity>
         <activity
             android:name=".LoginActivity"
-            android:label="@string/app_name"></activity>
+            android:label="@string/app_name" />
         <activity
             android:name="com.facebook.LoginActivity"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
             android:name=".Master"
-            android:label=""></activity>
+            android:label="" />
         /
         <meta-data
             android:name="com.google.android.gms.version"
@@ -55,12 +54,18 @@
 
         <activity
             android:name=".LocationFromMap"
-            android:label="@string/title_activity_location"></activity>
-
+            android:label="@string/title_activity_location" />
         <activity
             android:name=".ParallaxToolbarScrollViewActivity"
-            android:label=""></activity>
-
+            android:label="" />
+        <activity
+            android:name=".Offers"
+            android:label="@string/title_activity_offers" >
+        </activity>
+        <activity
+            android:name=".MyWallet"
+            android:label="@string/title_activity_my_wallet" >
+        </activity>
     </application>
 
 </manifest>

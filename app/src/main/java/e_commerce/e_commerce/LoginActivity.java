@@ -132,7 +132,8 @@ public class LoginActivity extends FragmentActivity implements
         loginProgressDialog = new ProgressDialog(LoginActivity.this);
 
 
-        if(!prefs.getString("LoginStatus","").equals("")&&prefs.getString("LoginStatus","").equals("Logged in")){
+        if(!prefs.getString("LoginStatus","").equals("")&&prefs.getString("LoginStatus","").equals("Logged in")
+                ||prefs.getString("LoginStatus","").equals("Already Logged in")){
             prefs.edit().putString("LoginStatus","Already Logged in").apply();
             prefs.edit().putString("LoginStatus","Already Logged in").commit();
             Intent loginIntent = new Intent(LoginActivity.this,Master.class);
@@ -215,7 +216,10 @@ public class LoginActivity extends FragmentActivity implements
 
                 //TODO check with the database for email and password
                 if (!userPassword.isEmpty() && !email.isEmpty()) {
-                    new LoginValidation().execute();
+                    if(MainActivity.internetConnection.isConnectingToInternet())
+                        new LoginValidation().execute();
+                    else
+                        Toast.makeText(getApplicationContext(),"Please check your internet connection",Toast.LENGTH_SHORT).show();
                 } else if (userPassword.isEmpty() || email.isEmpty())
                     Toast.makeText(getApplicationContext(), "The email id or password you entered is incorrect", Toast.LENGTH_SHORT).show();
             }
@@ -989,6 +993,8 @@ public class LoginActivity extends FragmentActivity implements
 
             if(loginSuccess==true)
                 new GetUserDetails().execute(session);
+            else if(!MainActivity.internetConnection.isConnectingToInternet())
+                Toast.makeText(getApplicationContext(),"Please check your internet connection",Toast.LENGTH_SHORT).show();
             else{
                 loginProgressDialog.hide();
                 loginProgressDialog.dismiss();

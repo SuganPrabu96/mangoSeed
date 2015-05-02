@@ -1,14 +1,14 @@
 package Cart;
 
-        import android.content.Context;
-        import android.support.v7.widget.RecyclerView;
-        import android.view.LayoutInflater;
-        import android.view.View;
-        import android.view.ViewGroup;
+import android.content.Context;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
-        import java.util.ArrayList;
+import java.util.ArrayList;
 
-        import e_commerce.e_commerce.R;
+import e_commerce.e_commerce.R;
 
 
 /**
@@ -19,7 +19,6 @@ public class CartRecyclerViewAdapter extends RecyclerView.Adapter<CartCardViewHo
 
     private ArrayList<CartItemsClass> listitems;
     private Context context;
-
 
     public CartRecyclerViewAdapter(ArrayList<CartItemsClass> items,Context context){
         this.listitems = items;
