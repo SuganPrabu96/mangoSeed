@@ -23,13 +23,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.Calendar;
+
 public class LocationFromMap extends FragmentActivity
-        implements OnMapReadyCallback {
+        implements OnMapReadyCallback, LocationListener {
 
     MapFragment mapfragment;
     public static double[] location = new double[2]; //location[0] is lat and location[1] is long
     public static LocationManager locationManager;
-    private LocationListener myLocationListener;
     private ProgressDialog p1;
     private boolean locationChanged=false;
     private Handler locUpdateHandler;
@@ -52,8 +53,31 @@ public class LocationFromMap extends FragmentActivity
             p1.setTitle("Getting location...");
             p1.show();
 
-            myLocationListener = new LocationListener() {
+            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if(location != null && location.getTime() > Calendar.getInstance().getTimeInMillis() - 2 * 60 * 1000) {
+                LocationFromMap.location[0] = location.getLatitude();
+                LocationFromMap.location[1] = location.getLongitude();
+                Log.i("Lat", String.valueOf(LocationFromMap.location[0]));
+                Log.i("Long", String.valueOf(LocationFromMap.location[1]));
+                Log.i("Location Accuracy", String.valueOf(location.getAccuracy()));
+                if (p1.isShowing()) {
+                    p1.hide();
+                    p1.dismiss();
+                }
 
+                locationChanged=true;
+
+                Message msg = new Message();
+                msg.arg1=1;
+                locUpdateHandler.sendMessage(msg);
+
+                finish();
+            }
+            else {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+            }
+
+            /*locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
                     LocationFromMap.location[0] = location.getLatitude();
@@ -62,7 +86,7 @@ public class LocationFromMap extends FragmentActivity
                     Log.i("Long", String.valueOf(LocationFromMap.location[1]));
                     Log.i("Location Accuracy", String.valueOf(location.getAccuracy()));
 
-                    locationManager.removeUpdates(myLocationListener);
+                    // locationManager.removeUpdates(myLocationListener);
 
                     if (p1.isShowing()) {
                         p1.hide();
@@ -75,12 +99,14 @@ public class LocationFromMap extends FragmentActivity
                     msg.arg1=1;
                     locUpdateHandler.sendMessage(msg);
 
-                    /*if(locationChanged==true){
+                    finish();
+
+                    *//*if(locationChanged==true){
                         if(gmap!=null)
                             gmap.addMarker(new MarkerOptions()
                                     .position(new LatLng(LocationFromMap.location[0],LocationFromMap.location[1]))
                                     .title("Marker"));
-                    }*/
+                    }*//*
                 }
 
                 @Override
@@ -97,9 +123,8 @@ public class LocationFromMap extends FragmentActivity
                 public void onProviderDisabled(String provider) {
 
                 }
-            };
+            });*/
 
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, myLocationListener);
         }
         if(!LoginActivity.prefs.getString("Latitude","").equals("")&&!LoginActivity.prefs.getString("Longitude","").equals("")) {
             location[0] = Double.parseDouble(LoginActivity.prefs.getString("Latitude",""));
@@ -251,6 +276,44 @@ public class LocationFromMap extends FragmentActivity
             Master.locationDialog.hide();
             Master.locationDialog.dismiss();
         }
+
+    }
+
+    public void onLocationChanged(Location location) {
+        if(location!=null){
+            locationManager.removeUpdates(this);
+            LocationFromMap.location[0] = location.getLatitude();
+            LocationFromMap.location[1] = location.getLongitude();
+            Log.i("Lat", String.valueOf(LocationFromMap.location[0]));
+            Log.i("Long", String.valueOf(LocationFromMap.location[1]));
+            Log.i("Location Accuracy", String.valueOf(location.getAccuracy()));
+
+            // locationManager.removeUpdates(myLocationListener);
+
+            if (p1.isShowing()) {
+                p1.hide();
+                p1.dismiss();
+            }
+
+            locationChanged=true;
+
+            Message msg = new Message();
+            msg.arg1=1;
+            locUpdateHandler.sendMessage(msg);
+
+            finish();
+        }
+    }
+
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    public void onProviderDisabled(String provider) {
 
     }
 

@@ -46,7 +46,8 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
             android:name=".Master"
-            android:label="" />
+            android:label=""
+            android:windowSoftInputMode="adjustPan"/>
         /
         <meta-data
             android:name="com.google.android.gms.version"
@@ -58,14 +59,7 @@
         <activity
             android:name=".ParallaxToolbarScrollViewActivity"
             android:label="" />
-        <activity
-            android:name=".Offers"
-            android:label="@string/title_activity_offers" >
-        </activity>
-        <activity
-            android:name=".MyWallet"
-            android:label="@string/title_activity_my_wallet" >
-        </activity>
+
     </application>
 
 </manifest>

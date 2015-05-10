@@ -43,21 +43,24 @@
                 android:text="Item's name"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="#000000" />
-            <ImageButton
-                android:id="@+id/editbutton"
-                android:layout_marginLeft="280dp"
+            <!--<ImageButton
+                android:id="@+id/cart_editbutton"
+                android:layout_marginLeft="275dp"
                 android:layout_marginTop="5dp"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
+                android:scaleType="fitXY"
                 android:background="@drawable/editimage"
-                />
+                />-->
             <ImageButton
-                android:id="@+id/removebutton"
+                android:id="@+id/cart_removebutton"
                 android:layout_marginTop="5dp"
-                android:layout_marginLeft="330dp"
+                android:layout_marginLeft="275dp"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:background="@drawable/removeicon"
+                android:layout_marginRight="20dp"
+                android:scaleType="fitXY"
+                android:background="@drawable/remove_icon"
                 />
 
             <TextView

@@ -1,7 +1,6 @@
 package ItemDisplay;
 
 import android.content.Context;
-import android.os.Message;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,10 +50,6 @@ public class ItemsCardAdapter extends RecyclerView.Adapter<ViewHolderItems>{
                 Master.addtocart_fn(item);
             }
         });
-            Message addToCart = new Message();
-            addToCart.arg1=1;
-
-           //TODO  Master.addToCartHandler.sendMessage(addToCart);
 
     }
 

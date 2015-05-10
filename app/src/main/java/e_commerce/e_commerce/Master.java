@@ -4,6 +4,8 @@ package e_commerce.e_commerce;
  * Created by Suganprabu on 17-04-2015.
  */
 
+
+//TODO in cart_card.xml I have changed the marginLeft of the removeButton for testing purposes
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -31,6 +33,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,6 +41,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -46,6 +51,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.Spinner;
@@ -116,11 +122,15 @@ public class Master extends ActionBarActivity {
             loadNewItemsProgress;
     public static Handler locationHandler, logoutHandler, loadItems, loadItemImages, newItemsHandler;
     public static boolean logoutSuccess = false;
-    static ArrayList<CartItemsClass> cartitems = new ArrayList<>();
+    public static InputMethodManager inputMethodManager;
+    public static RecyclerView cartItemRecyclerView;
+    public static CartRecyclerViewAdapter cAdapter;
+    public static ArrayList<CartItemsClass> cartitems = new ArrayList<>();
     String[] loc_city = {"Chennai"};
     String[] loc_area = {"Adyar", "Ambattur", "Anna Nagar"};
     String[] loc_lat = {"13.0063","13.0983","13.0846"};
     String[] loc_long = {"80.2574","80.1622","80.2179"};
+    private static int count = 0;
 
     // TODO change the initial value of location based on Shared prefs
 
@@ -131,8 +141,12 @@ public class Master extends ActionBarActivity {
 
         setContentView(R.layout.nav_bar);
 
+        inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+
         categoryName = new ArrayList();
         productsName = new ArrayList();
+
+        cAdapter = new CartRecyclerViewAdapter(cartitems, getApplicationContext());
 
         updateProgress = new ProgressDialog(Master.this);
         locationProgress = new ProgressDialog(Master.this);
@@ -793,18 +807,12 @@ public class Master extends ActionBarActivity {
                 }
             });
 
-            RecyclerView cartItemRecyclerView;
-            CartRecyclerViewAdapter cAdapter;
-            ArrayList<CartItemsClass> cartitems = new ArrayList<>();
-
             cartItemRecyclerView = (RecyclerView) rootView.findViewById(R.id.cart_items_recyclerview);
             cartItemRecyclerView.setHasFixedSize(false);
             cartItemRecyclerView.setLayoutManager(new LinearLayoutManager(rootView.getContext()));
             cartItemRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-            cAdapter = new CartRecyclerViewAdapter(cartitems, rootView.getContext());
             cartItemRecyclerView.setAdapter(cAdapter);
-
             return rootView;
         }
     }
@@ -915,16 +923,11 @@ public class Master extends ActionBarActivity {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_about, container, false);
 
-            RecyclerView cartItemRecyclerView;
-            CartRecyclerViewAdapter cAdapter;
-            ArrayList<CartItemsClass> cartitems = new ArrayList<>();
-
             cartItemRecyclerView = (RecyclerView) rootView.findViewById(R.id.cart_items_recyclerview);
             cartItemRecyclerView.setHasFixedSize(false);
             cartItemRecyclerView.setLayoutManager(new LinearLayoutManager(rootView.getContext()));
             cartItemRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-            cAdapter = new CartRecyclerViewAdapter(cartitems, rootView.getContext());
             cartItemRecyclerView.setAdapter(cAdapter);
 
             return rootView;
@@ -965,16 +968,11 @@ public class Master extends ActionBarActivity {
                 }
             });
 
-            RecyclerView cartItemRecyclerView;
-            CartRecyclerViewAdapter cAdapter;
-            ArrayList<CartItemsClass> cartitems = new ArrayList<>();
-
             cartItemRecyclerView = (RecyclerView) rootView.findViewById(R.id.cart_items_recyclerview);
             cartItemRecyclerView.setHasFixedSize(false);
             cartItemRecyclerView.setLayoutManager(new LinearLayoutManager(rootView.getContext()));
             cartItemRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-            cAdapter = new CartRecyclerViewAdapter(cartitems, rootView.getContext());
             cartItemRecyclerView.setAdapter(cAdapter);
             return rootView;
         }
@@ -991,16 +989,11 @@ public class Master extends ActionBarActivity {
             View rootView = inflater.inflate(R.layout.fragment_order_history, container, false);
 
 
-            RecyclerView cartItemRecyclerView;
-            CartRecyclerViewAdapter cAdapter;
-            ArrayList<CartItemsClass> cartitems = new ArrayList<>();
-
             cartItemRecyclerView = (RecyclerView) rootView.findViewById(R.id.cart_items_recyclerview);
             cartItemRecyclerView.setHasFixedSize(false);
             cartItemRecyclerView.setLayoutManager(new LinearLayoutManager(rootView.getContext()));
             cartItemRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-            cAdapter = new CartRecyclerViewAdapter(cartitems, rootView.getContext());
             cartItemRecyclerView.setAdapter(cAdapter);
 
             return rootView;
@@ -1019,11 +1012,15 @@ public class Master extends ActionBarActivity {
         private Dialog confirmChangesDialog;
         private boolean confirmChangesAuth;
         private Handler confirmChangesMsgHandler;
+        private LinearLayout myAccountLayout;
+
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             final View rootView = inflater.inflate(R.layout.fragment_my_account, container, false);
+
+            myAccountLayout = (LinearLayout) rootView.findViewById(R.id.my_account_layout);
 
             submit = (Button) rootView.findViewById(R.id.accountButtonSubmit);
 
@@ -1071,46 +1068,129 @@ public class Master extends ActionBarActivity {
             editNewAddress.setHint(address.getText());
             editNewPassword.setHint(password.getText());
 
+            myAccountLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(inputMethodManager.isAcceptingText()){
+                        if(editNewName.isEnabled()) {
+                            inputMethodManager.hideSoftInputFromWindow(editNewName.getWindowToken(), 0);
+                            editNewName.setVisibility(View.INVISIBLE);
+                            name.setVisibility(View.VISIBLE);
+                        }
+                        if(editNewEmail.isEnabled()) {
+                            inputMethodManager.hideSoftInputFromWindow(editNewEmail.getWindowToken(), 0);
+                            editNewEmail.setVisibility(View.INVISIBLE);
+                            email.setVisibility(View.VISIBLE);
+                        }
+                        if(editNewPassword.isEnabled()){
+                            editNewPassword.setVisibility(View.INVISIBLE);
+                            password.setVisibility(View.VISIBLE);
+                            inputMethodManager.hideSoftInputFromWindow(editNewPassword.getWindowToken(),0);}
 
-            Log.i("Name", LoginActivity.prefs.getString("Name", ""));
+                        if(editNewPhone.isEnabled()) {
+                            editNewPhone.setVisibility(View.INVISIBLE);
+                            phone.setVisibility(View.VISIBLE);
+                            inputMethodManager.hideSoftInputFromWindow(editNewPhone.getWindowToken(), 0);
+                        }
+                        if(editNewAddress.isEnabled()) {
+                            editNewAddress.setVisibility(View.INVISIBLE);
+                            address.setVisibility(View.VISIBLE);
+                            inputMethodManager.hideSoftInputFromWindow(editNewAddress.getWindowToken(), 0);
+                        }
+                    }
+
+                }
+            });
 
             name.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    address.setVisibility(View.VISIBLE);
+                    password.setVisibility(View.VISIBLE);
+                    phone.setVisibility(View.VISIBLE);
+                    email.setVisibility(View.VISIBLE);
                     name.setVisibility(View.INVISIBLE);
+                    editNewAddress.setVisibility(View.INVISIBLE);
+                    editNewPassword.setVisibility(View.INVISIBLE);
+                    editNewPhone.setVisibility(View.INVISIBLE);
+                    editNewEmail.setVisibility(View.INVISIBLE);
                     editNewName.setVisibility(View.VISIBLE);
+
+                    inputMethodManager.showSoftInput(editNewName,InputMethodManager.SHOW_FORCED);
+
                 }
+
             });
 
             email.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    address.setVisibility(View.VISIBLE);
+                    password.setVisibility(View.VISIBLE);
+                    phone.setVisibility(View.VISIBLE);
                     email.setVisibility(View.INVISIBLE);
+                    name.setVisibility(View.VISIBLE);
+                    editNewAddress.setVisibility(View.INVISIBLE);
+                    editNewPassword.setVisibility(View.INVISIBLE);
+                    editNewPhone.setVisibility(View.INVISIBLE);
                     editNewEmail.setVisibility(View.VISIBLE);
+                    editNewName.setVisibility(View.INVISIBLE);
+
+                    inputMethodManager.showSoftInput(editNewEmail,InputMethodManager.SHOW_FORCED);
                 }
             });
 
             phone.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    address.setVisibility(View.VISIBLE);
+                    password.setVisibility(View.VISIBLE);
                     phone.setVisibility(View.INVISIBLE);
+                    email.setVisibility(View.VISIBLE);
+                    name.setVisibility(View.VISIBLE);
+                    editNewAddress.setVisibility(View.INVISIBLE);
+                    editNewPassword.setVisibility(View.INVISIBLE);
                     editNewPhone.setVisibility(View.VISIBLE);
+                    editNewEmail.setVisibility(View.INVISIBLE);
+                    editNewName.setVisibility(View.INVISIBLE);
+
+                    inputMethodManager.showSoftInput(editNewPhone,InputMethodManager.SHOW_FORCED);
                 }
             });
 
             address.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    address.setVisibility(View.INVISIBLE);
+                    address.setVisibility(View.VISIBLE);
+                    password.setVisibility(View.INVISIBLE);
+                    phone.setVisibility(View.VISIBLE);
+                    email.setVisibility(View.VISIBLE);
+                    name.setVisibility(View.VISIBLE);
                     editNewAddress.setVisibility(View.VISIBLE);
+                    editNewPassword.setVisibility(View.INVISIBLE);
+                    editNewPhone.setVisibility(View.INVISIBLE);
+                    editNewEmail.setVisibility(View.INVISIBLE);
+                    editNewName.setVisibility(View.INVISIBLE);
+
+                    inputMethodManager.showSoftInput(editNewAddress,InputMethodManager.SHOW_FORCED);
                 }
             });
 
             password.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    address.setVisibility(View.VISIBLE);
                     password.setVisibility(View.INVISIBLE);
+                    phone.setVisibility(View.VISIBLE);
+                    email.setVisibility(View.VISIBLE);
+                    name.setVisibility(View.VISIBLE);
+                    editNewAddress.setVisibility(View.INVISIBLE);
                     editNewPassword.setVisibility(View.VISIBLE);
+                    editNewPhone.setVisibility(View.INVISIBLE);
+                    editNewEmail.setVisibility(View.INVISIBLE);
+                    editNewName.setVisibility(View.INVISIBLE);
+
+                    inputMethodManager.showSoftInput(editNewPassword,InputMethodManager.SHOW_FORCED);
                 }
 
             });
@@ -1118,7 +1198,7 @@ public class Master extends ActionBarActivity {
             editNewName.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
+                    
                 }
 
                 @Override
@@ -1128,6 +1208,26 @@ public class Master extends ActionBarActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
+                    editNewName.setOnKeyListener(new View.OnKeyListener() {
+                            @Override
+                            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                                if(event.getKeyCode()==KeyEvent.KEYCODE_ENTER)
+                                    inputMethodManager.hideSoftInputFromWindow(editNewName.getWindowToken(), 0);
+                                return false;
+                            }
+                     });
+                    editNewName.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                        @Override
+                        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                            Log.i("Inside onEditorAction","True");
+                            Log.i("actionId", String.valueOf(actionId));
+
+                            int result = actionId & EditorInfo.IME_MASK_ACTION;
+                            if(result==EditorInfo.IME_ACTION_DONE)
+                                inputMethodManager.hideSoftInputFromWindow(editNewName.getWindowToken(),0);
+                            return false;
+                        }
+                    });
                     if (name.getText() != s.toString()) {
                         name.setText(s.toString());
                         editNewName.setHint(s.toString());
@@ -1155,6 +1255,26 @@ public class Master extends ActionBarActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
+                    editNewEmail.setOnKeyListener(new View.OnKeyListener() {
+                        @Override
+                        public boolean onKey(View v, int keyCode, KeyEvent event) {
+                            if(event.getKeyCode()==KeyEvent.KEYCODE_ENTER)
+                                inputMethodManager.hideSoftInputFromWindow(editNewEmail.getWindowToken(), 0);
+                            return false;
+                        }
+                    });
+                    editNewEmail.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                        @Override
+                        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                            Log.i("Inside onEditorAction","True");
+                            Log.i("actionId", String.valueOf(actionId));
+
+                            int result = actionId & EditorInfo.IME_MASK_ACTION;
+                            if(result==EditorInfo.IME_ACTION_DONE)
+                                inputMethodManager.hideSoftInputFromWindow(editNewEmail.getWindowToken(),0);
+                            return false;
+                        }
+                    });
                     if (email.getText() != s.toString()) {
                         email.setText(s.toString());
                         editNewEmail.setHint(s.toString());
@@ -1181,6 +1301,26 @@ public class Master extends ActionBarActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
+                    editNewPhone.setOnKeyListener(new View.OnKeyListener() {
+                        @Override
+                        public boolean onKey(View v, int keyCode, KeyEvent event) {
+                            if(event.getKeyCode()==KeyEvent.KEYCODE_ENTER)
+                                inputMethodManager.hideSoftInputFromWindow(editNewPhone.getWindowToken(), 0);
+                            return false;
+                        }
+                    });
+                    editNewPhone.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                        @Override
+                        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                            Log.i("Inside onEditorAction","True");
+                            Log.i("actionId", String.valueOf(actionId));
+
+                            int result = actionId & EditorInfo.IME_MASK_ACTION;
+                            if(result==EditorInfo.IME_ACTION_DONE)
+                                inputMethodManager.hideSoftInputFromWindow(editNewPhone.getWindowToken(),0);
+                            return false;
+                        }
+                    });
                     if (phone.getText() != s.toString()) {
                         phone.setText(s.toString());
                         editNewPhone.setHint(s.toString());
@@ -1207,6 +1347,26 @@ public class Master extends ActionBarActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
+                    editNewAddress.setOnKeyListener(new View.OnKeyListener() {
+                        @Override
+                        public boolean onKey(View v, int keyCode, KeyEvent event) {
+                            if(event.getKeyCode()==KeyEvent.KEYCODE_ENTER)
+                                inputMethodManager.hideSoftInputFromWindow(editNewAddress.getWindowToken(), 0);
+                            return false;
+                        }
+                    });
+                    editNewAddress.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                        @Override
+                        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                            Log.i("Inside onEditorAction","True");
+                            Log.i("actionId", String.valueOf(actionId));
+
+                            int result = actionId & EditorInfo.IME_MASK_ACTION;
+                            if(result==EditorInfo.IME_ACTION_DONE)
+                                inputMethodManager.hideSoftInputFromWindow(editNewAddress.getWindowToken(),0);
+                            return false;
+                        }
+                    });
                     if (address.getText() != s.toString()) {
                         address.setText(s.toString());
                         editNewAddress.setText(s.toString());
@@ -1233,6 +1393,26 @@ public class Master extends ActionBarActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
+                    editNewPassword.setOnKeyListener(new View.OnKeyListener() {
+                        @Override
+                        public boolean onKey(View v, int keyCode, KeyEvent event) {
+                            if(event.getKeyCode()==KeyEvent.KEYCODE_ENTER)
+                                inputMethodManager.hideSoftInputFromWindow(editNewPassword.getWindowToken(), 0);
+                            return false;
+                        }
+                    });
+                    editNewPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                        @Override
+                        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                            Log.i("Inside onEditorAction","True");
+                            Log.i("actionId", String.valueOf(actionId));
+
+                            int result = actionId & EditorInfo.IME_MASK_ACTION;
+                            if(result==EditorInfo.IME_ACTION_DONE)
+                                inputMethodManager.hideSoftInputFromWindow(editNewPassword.getWindowToken(),0);
+                            return false;
+                        }
+                    });
                     if (password.getText() != s.toString()) {
                         password.setText(s.toString());
                         editNewPassword.setHint(s.toString());
@@ -1337,16 +1517,11 @@ public class Master extends ActionBarActivity {
                 }
             };
 
-            RecyclerView cartItemRecyclerView;
-            CartRecyclerViewAdapter cAdapter;
-            ArrayList<CartItemsClass> cartitems = new ArrayList<>();
-
             cartItemRecyclerView = (RecyclerView) rootView.findViewById(R.id.cart_items_recyclerview);
             cartItemRecyclerView.setHasFixedSize(false);
             cartItemRecyclerView.setLayoutManager(new LinearLayoutManager(rootView.getContext()));
             cartItemRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-            cAdapter = new CartRecyclerViewAdapter(cartitems, rootView.getContext());
             cartItemRecyclerView.setAdapter(cAdapter);
 
             return rootView;
@@ -1565,16 +1740,11 @@ public class Master extends ActionBarActivity {
                 }
             });
 
-            RecyclerView cartItemRecyclerView;
-            CartRecyclerViewAdapter cAdapter;
-            ArrayList<CartItemsClass> cartitems = new ArrayList<>();
-
             cartItemRecyclerView = (RecyclerView) rootView1.findViewById(R.id.cart_items_recyclerview);
             cartItemRecyclerView.setHasFixedSize(false);
             cartItemRecyclerView.setLayoutManager(new LinearLayoutManager(rootView1.getContext()));
             cartItemRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-            cAdapter = new CartRecyclerViewAdapter(cartitems, rootView1.getContext());
             cartItemRecyclerView.setAdapter(cAdapter);
 
             return rootView1;
@@ -1648,7 +1818,6 @@ public class Master extends ActionBarActivity {
         }
 
         public static class CardBackFragment extends Fragment {
-            private Button btnAddToCart;
             public CardBackFragment(){
 
             }
@@ -1657,14 +1826,6 @@ public class Master extends ActionBarActivity {
                                      Bundle savedInstanceState) {
                 View rootView = inflater.inflate(R.layout.items_card_back,container,false);
 
-                btnAddToCart = (Button) rootView.findViewById(R.id.buttonAddToCart);
-
-                btnAddToCart.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //TODO add to cart from here
-                    }
-                });
 
                 return rootView;
             }
@@ -1674,11 +1835,15 @@ public class Master extends ActionBarActivity {
 
     public static void addtocart_fn(ItemDetailsClass item){
 
-        Master.cartitems.add(new CartItemsClass(item.getItemtitle()));
-        //       ImageButton ib = (ImageButton)
+        Master.cAdapter.add(new CartItemsClass(item.getItemtitle()));
 
+        Log.i("CartItems Length", String.valueOf(cartitems.size()));
+        Log.i("Cart Recycler View Size", String.valueOf(cAdapter.getItemCount()));
+    }
 
+    public static void removefrom_cart(int position){
 
+        Master.cAdapter.remove(position);
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {

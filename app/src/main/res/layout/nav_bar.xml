@@ -42,16 +42,16 @@
                     android:id="@+id/frame_profile_pic">
 
                     <ImageView
-                                android:layout_width="80dp"
-                                android:layout_height="45dp"
-                                android:id="@+id/profilepic"
-                                android:layout_marginLeft="0dp"
-                                android:layout_marginRight="0dp"
-                                android:layout_alignParentTop="true"
-                                android:clickable="false"
-                                android:layout_marginTop="20dp"
-                                android:src="@drawable/profilegrey"
-                                android:background="@color/myNavigationBarProPicBackgroundColor" />-->
+                        android:layout_width="80dp"
+                        android:layout_height="45dp"
+                        android:id="@+id/profilepic"
+                        android:layout_marginLeft="0dp"
+                        android:layout_marginRight="0dp"
+                        android:layout_alignParentTop="true"
+                        android:clickable="false"
+                        android:layout_marginTop="20dp"
+                        android:src="@drawable/profilegrey"
+                        android:background="@color/myNavigationBarProPicBackgroundColor" />-->
 
                     <com.facebook.widget.ProfilePictureView
                         android:id="@+id/profilepic_facebook"
@@ -100,6 +100,7 @@
                     android:background="@color/myNavigationBarProPicBackgroundColor"/>
 
             </RelativeLayout>
+
             <ListView
                 android:id="@+id/list_slidermenu"
                 android:layout_width="240dp"

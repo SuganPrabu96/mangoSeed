@@ -19,6 +19,6 @@ public class CartCardViewHolder extends RecyclerView.ViewHolder{
     public CartCardViewHolder(Context context, View itemView) {
         super(itemView);
         this.context = context;
-        itemname = (TextView) itemView.findViewById(R.id.itemname);
+        itemname = (TextView) itemView.findViewById(R.id.cart_itemname);
 
     }}
