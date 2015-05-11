@@ -47,7 +47,14 @@
         <activity
             android:name=".Master"
             android:label=""
-            android:windowSoftInputMode="adjustPan"/>
+            android:windowSoftInputMode="adjustPan">
+
+            <meta-data
+                android:name="android.app.default_searchable"
+                android:value=".ItemsSearchActivity"/>
+
+        </activity>
+
         /
         <meta-data
             android:name="com.google.android.gms.version"
@@ -59,6 +66,22 @@
         <activity
             android:name=".ParallaxToolbarScrollViewActivity"
             android:label="" />
+        <activity
+            android:name=".ItemsSearchActivity"
+            android:label="@string/title_activity_items_search" >
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH"/>
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable"/>
+
+        </activity>
+
+        <provider android:name="util.SearchSuggestionProvider"
+                    android:authorities="e_commerce.e_commerce.SearchSuggestionProvider" />
 
     </application>
 

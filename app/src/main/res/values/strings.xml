@@ -40,5 +40,6 @@ Quam libero nulla netus eu porta curae, ut nulla bibendum facilisis et urna sed,
     </string>
     <string name="title_activity_offers">Offers</string>
     <string name="title_activity_my_wallet">MyWallet</string>
+    <string name="title_activity_items_search">ItemsSearchActivity</string>
 
 </resources>

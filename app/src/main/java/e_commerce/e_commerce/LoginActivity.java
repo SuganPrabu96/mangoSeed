@@ -873,6 +873,10 @@ public class LoginActivity extends FragmentActivity implements
                         LoginActivity.prefs.edit().putString("LoginStatus", "App").commit();
                         LoginActivity.prefs.edit().putString("LoginStatus", "Logged in").apply();
                         LoginActivity.prefs.edit().putString("LoginStatus", "Logged in").commit();
+                        prefs.edit().putString("session",session).apply();
+                        prefs.edit().putString("session",session).commit();
+                        prefs.edit().putString("ID",sessionId).apply();
+                        prefs.edit().putString("ID",sessionId).commit();
 
                         registerSuccess = true;
                     }
@@ -956,6 +960,12 @@ public class LoginActivity extends FragmentActivity implements
 
                         session=loginJSON.getString("session");
                         sessionId=loginJSON.getString("ID");
+
+                        prefs.edit().putString("session",session).apply();
+                        prefs.edit().putString("session",session).commit();
+
+                        prefs.edit().putString("ID",sessionId).apply();
+                        prefs.edit().putString("ID",sessionId).commit();
 
                         Log.i("Session",session);
                         Log.i("Session Id",sessionId);

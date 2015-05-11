@@ -6,9 +6,11 @@ package e_commerce.e_commerce;
 
 
 //TODO in cart_card.xml I have changed the marginLeft of the removeButton for testing purposes
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.app.SearchManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -29,6 +31,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -189,7 +192,7 @@ public class Master extends ActionBarActivity {
 
         else if(!LoginActivity.prefs.getString("LoginStatus","").equals("Already Logged in")){
             new LoadCatSubCat().execute();
-            new NewItems().execute(LoginActivity.session, String.valueOf(System.currentTimeMillis()));
+            new NewItems().execute(LoginActivity.prefs.getString("session",""), String.valueOf(System.currentTimeMillis()));
         }
 
         Window window = Master.this.getWindow();
@@ -250,7 +253,7 @@ public class Master extends ActionBarActivity {
             public void handleMessage(Message msg) {
                 if (msg.arg1 == 1) {
                     if (msg.arg2 == 1) {
-                        new LocationDetails().execute(String.valueOf(LocationFromMap.location[0]), String.valueOf(LocationFromMap.location[1]), LoginActivity.session);
+                        new LocationDetails().execute(String.valueOf(LocationFromMap.location[0]), String.valueOf(LocationFromMap.location[1]), LoginActivity.prefs.getString("session",""));
                     }
                 }
             }
@@ -344,7 +347,7 @@ public class Master extends ActionBarActivity {
                         locationDialog.hide();
                         locationDialog.dismiss();
 
-                        new LocationDetails().execute(loc_lat[position], loc_long[position], LoginActivity.session);
+                        new LocationDetails().execute(loc_lat[position], loc_long[position], LoginActivity.prefs.getString("session",""));
                     }
                     check=true;
                 }
@@ -425,7 +428,7 @@ public class Master extends ActionBarActivity {
                 @Override
                 public void onClick(final DialogInterface dialog, int which) {
 
-                    new Logout().execute(LoginActivity.session);
+                    new Logout().execute(LoginActivity.prefs.getString("session",""));
 
                     logoutHandler = new Handler() {
                         public void handleMessage(Message msg) {
@@ -549,6 +552,13 @@ public class Master extends ActionBarActivity {
                 }
             }
         };
+
+        SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.menu_master_search).getActionView();
+
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
+        searchView.setQueryHint("Search");
 
         return true;
     }
@@ -745,7 +755,16 @@ public class Master extends ActionBarActivity {
             return true;
         }
 
+        else if(id == R.id.menu_master_search){
+            getSearchTerm();
+        }
+
         return super.onOptionsItemSelected(item);
+    }
+
+    private void getSearchTerm(){
+
+
     }
 
     public void getLocationFromMap() {
@@ -2055,7 +2074,7 @@ public class Master extends ActionBarActivity {
             phone = params[4];
 
             List<NameValuePair> paramsUpdate = new ArrayList<NameValuePair>();
-            paramsUpdate.add(new BasicNameValuePair("session", LoginActivity.session));
+            paramsUpdate.add(new BasicNameValuePair("session", LoginActivity.prefs.getString("session","")));
             paramsUpdate.add(new BasicNameValuePair("email", email));
             paramsUpdate.add(new BasicNameValuePair("name", name));
             paramsUpdate.add(new BasicNameValuePair("password", password));
@@ -2137,7 +2156,7 @@ public class Master extends ActionBarActivity {
 
             paramsLocation.add(new BasicNameValuePair("latitude",params[0]));
             paramsLocation.add(new BasicNameValuePair("longitude",params[1]));
-            paramsLocation.add(new BasicNameValuePair("session", LoginActivity.session));
+            paramsLocation.add(new BasicNameValuePair("session", LoginActivity.prefs.getString("session","")));
             ServiceHandler jsonParser = new ServiceHandler();
             locationReturnedJSON = jsonParser.makeServiceCall(locationURL, ServiceHandler.POST, paramsLocation);
             if (locationReturnedJSON != null) {
@@ -2172,7 +2191,7 @@ public class Master extends ActionBarActivity {
                 Toast.makeText(getApplicationContext(),"Unable to load products",Toast.LENGTH_SHORT).show();
             else {
                 new LoadCatSubCat().execute();
-                new NewItems().execute(LoginActivity.session, String.valueOf(System.currentTimeMillis()));
+                new NewItems().execute(LoginActivity.prefs.getString("session",""), String.valueOf(System.currentTimeMillis()));
             }
         }
 
@@ -2207,7 +2226,7 @@ public class Master extends ActionBarActivity {
             Log.i("catID",params[0]);
             Log.i("subCatID",params[1]);
 
-            paramsItems.add(new BasicNameValuePair("session", LoginActivity.session));
+            paramsItems.add(new BasicNameValuePair("session", LoginActivity.prefs.getString("session","")));
             paramsItems.add(new BasicNameValuePair("ID",params[0]));
             paramsItems.add(new BasicNameValuePair("subID",params[1]));
             ServiceHandler jsonParser = new ServiceHandler();
@@ -2487,6 +2506,8 @@ public class Master extends ActionBarActivity {
                 LoginActivity.prefs.edit().putString("Latitude", "").apply();
                 LoginActivity.prefs.edit().putString("Name", "").apply();
                 LoginActivity.prefs.edit().putString("userStatus","").apply();
+                LoginActivity.prefs.edit().putString("session","").apply();
+                LoginActivity.prefs.edit().putString("ID","").apply();
 
                 LoginActivity.prefs.edit().putString("Name", "").commit();
                 LoginActivity.prefs.edit().putString("Email", "").commit();
@@ -2504,6 +2525,11 @@ public class Master extends ActionBarActivity {
                 LoginActivity.prefs.edit().putString("Latitude", "").commit();
                 LoginActivity.prefs.edit().putString("Latitude", "").commit();
                 LoginActivity.prefs.edit().putString("userStatus","").commit();
+                LoginActivity.prefs.edit().putString("session","").commit();
+                LoginActivity.prefs.edit().putString("ID","").commit();
+
+                if(ItemsSearchActivity.recentSuggestions!=null)
+                    ItemsSearchActivity.recentSuggestions.clearHistory(); // Clearing the user's recent queries on logging out
 
                 Message msg = new Message();
                 msg.arg1 = 1;
