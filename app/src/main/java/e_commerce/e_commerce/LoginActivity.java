@@ -138,6 +138,7 @@ public class LoginActivity extends FragmentActivity implements
             prefs.edit().putString("LoginStatus","Already Logged in").commit();
             Intent loginIntent = new Intent(LoginActivity.this,Master.class);
             loginIntent.putExtra("loginMethod",prefs.getString("LoginMode",""));
+            loginIntent.putExtra("userStatus","Already registered");
             startActivity(loginIntent);
             finish();
         }
@@ -297,6 +298,7 @@ public class LoginActivity extends FragmentActivity implements
                                     a.cancel();
                                     Intent loginIntent = new Intent(LoginActivity.this, Master.class);
                                     loginIntent.putExtra("loginMethod", "App");
+                                    loginIntent.putExtra("userStatus","Just registered");
                                     startActivity(loginIntent);
                                     finish();
                                     myDialog.dismiss();

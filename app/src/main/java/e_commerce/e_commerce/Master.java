@@ -53,7 +53,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -87,7 +86,7 @@ import util.data;
 
 public class Master extends ActionBarActivity {
 
-    public static FragmentManager SupportFragmentManager;
+    public static FragmentManager SupportFragmentManager, fragmentManager;
     public static boolean downloadImagesOverWifi, Notifications;
     public static ProfilePictureView facebookProfileIcon;
     public static TextView profileIconText;
@@ -121,7 +120,7 @@ public class Master extends ActionBarActivity {
     private static String updateDetailsReturnedJSON;
     public static ProgressDialog updateProgress, locationProgress, loadItemsProgress, logoutProgress, loadCatSubCatProgress,
             loadNewItemsProgress;
-    public static Handler locationHandler, logoutHandler, loadItems, loadItemImages, newItemsHandler;
+    public static Handler locationHandler, logoutHandler, loadItems, loadItemImages, newItemsHandler, menuHandler;
     public static boolean logoutSuccess = false;
     public static InputMethodManager inputMethodManager;
     public static RecyclerView cartItemRecyclerView;
@@ -131,7 +130,7 @@ public class Master extends ActionBarActivity {
     String[] loc_area = {"Adyar", "Ambattur", "Anna Nagar"};
     String[] loc_lat = {"13.0063","13.0983","13.0846"};
     String[] loc_long = {"80.2574","80.1622","80.2179"};
-    private static int count = 0;
+    private static int fragPos = -1;
 
     // TODO change the initial value of location based on Shared prefs
 
@@ -148,6 +147,8 @@ public class Master extends ActionBarActivity {
         productsName = new ArrayList();
 
         cAdapter = new CartRecyclerViewAdapter(cartitems, getApplicationContext());
+
+        menuHandler = new Handler();
 
         updateProgress = new ProgressDialog(Master.this);
         locationProgress = new ProgressDialog(Master.this);
@@ -183,8 +184,13 @@ public class Master extends ActionBarActivity {
         actionBar = getSupportActionBar();
         actionBar.setTitle(LoginActivity.prefs.getString("areaname",""));
 
-        if(!LoginActivity.prefs.getString("LoginStatus","").equals("Already Logged in"))
+        if(LoginActivity.prefs.getString("userStatus","").equals("Just registered"))
             getLocationForItems();
+
+        else if(!LoginActivity.prefs.getString("LoginStatus","").equals("Already Logged in")){
+            new LoadCatSubCat().execute();
+            new NewItems().execute(LoginActivity.session, String.valueOf(System.currentTimeMillis()));
+        }
 
         Window window = Master.this.getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -196,11 +202,16 @@ public class Master extends ActionBarActivity {
         SupportFragmentManager = getSupportFragmentManager();
 
         List<NavDrawerItem> datalist = data.getNavDrawerItems();
-        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
 
         fragmentTransaction.add(R.id.frame_container, new ProductsFragment());
         fragmentTransaction.commit();
+
+        Message msg = new Message();
+        msg.arg1 = 1;
+        msg.arg2 = 0;
+        menuHandler.sendMessage(msg);
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerList = (ListView) findViewById(R.id.list_slidermenu);
@@ -258,7 +269,7 @@ public class Master extends ActionBarActivity {
             final Spinner city = (Spinner) locationDialog.findViewById(R.id.spinnerLocationCity);
             final Spinner area = (Spinner) locationDialog.findViewById(R.id.spinnerLocationArea);
 
-            final RadioButton selectFromMap = (RadioButton) locationDialog.findViewById(R.id.radio_select_from_map);
+            //final RadioButton selectFromMap = (RadioButton) locationDialog.findViewById(R.id.radio_select_from_map);
 
             ArrayAdapter<String> adapter_area = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, loc_area);
             area.setAdapter(adapter_area);
@@ -344,7 +355,7 @@ public class Master extends ActionBarActivity {
                 }
             });
 
-            selectFromMap.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            /*selectFromMap.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if (selectFromMap.isChecked()) {
@@ -353,7 +364,7 @@ public class Master extends ActionBarActivity {
                     }
                     getLocationFromMap();
                 }
-            });
+            });*/
 
             Log.i("areaname", LoginActivity.prefs.getString("areaname", ""));
             if (!LoginActivity.prefs.getString("areaname", "").equals(""))
@@ -380,24 +391,29 @@ public class Master extends ActionBarActivity {
                     .setLayoutParams(lp);
         }
 
+        Message msg = new Message();
+        msg.arg1 = 1;
+        msg.arg2 = position;
+        menuHandler.sendMessage(msg);
+
         if (position == 0) {
-            fragmentTransaction.replace(R.id.frame_container, new ProductsFragment());
+            fragmentTransaction.replace(R.id.frame_container, new ProductsFragment(), "ProductsFragment");
         } else if (position == 1) {
-            fragmentTransaction.replace(R.id.frame_container, new MyAccountFragment());
+            fragmentTransaction.replace(R.id.frame_container, new MyAccountFragment(), "MyAccountFragment");
         } else if (position == 2) {
-            fragmentTransaction.replace(R.id.frame_container, new GeneralSettingsFragment());
+            fragmentTransaction.replace(R.id.frame_container, new GeneralSettingsFragment(), "GeneralSettingsFragment");
         } else if (position == 3) {
-            fragmentTransaction.replace(R.id.frame_container, new NotificationsFragment());
+            fragmentTransaction.replace(R.id.frame_container, new NotificationsFragment(), "NotificationsFragment");
         } else if (position == 4) {
-            fragmentTransaction.replace(R.id.frame_container, new OrderHistoryFragment());
+            fragmentTransaction.replace(R.id.frame_container, new OrderHistoryFragment(), "OrderHistoryFragment");
         } else if(position == 5){
-            fragmentTransaction.replace(R.id.frame_container,new OffersFragment());
+            fragmentTransaction.replace(R.id.frame_container,new OffersFragment(), "OffersFragment");
         } else if(position == 6){
-            fragmentTransaction.replace(R.id.frame_container, new MyWalletFragment());
+            fragmentTransaction.replace(R.id.frame_container, new MyWalletFragment(), "MyWalletFragment");
         } else if (position == 7) {
-            fragmentTransaction.replace(R.id.frame_container, new AboutFragment());
+            fragmentTransaction.replace(R.id.frame_container, new AboutFragment(), "AboutFragment");
         } else if (position == 8) {
-            fragmentTransaction.replace(R.id.frame_container, new HelpFragment());
+            fragmentTransaction.replace(R.id.frame_container, new HelpFragment(), "HelpFragment");
         } else if (position == 9) {
             final AlertDialog.Builder logoutAlert = new AlertDialog.Builder(Master.this);
 
@@ -512,9 +528,28 @@ public class Master extends ActionBarActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_master, menu);
+
+        Master.menuHandler = new Handler() {
+            public void handleMessage(Message msg) {
+                if (msg.arg1 == 1) {
+                    if(msg.arg2 == 0) {
+                        if (!(menu.findItem(R.id.menu_master_search).isEnabled() && menu.findItem(R.id.menu_master_search).isVisible())) {
+                            menu.findItem(R.id.menu_master_search).setEnabled(true);
+                            menu.findItem(R.id.menu_master_search).setVisible(true);
+                        }
+                    }
+                    else {
+                       menu.findItem(R.id.menu_master_search).setVisible(false);
+                       menu.findItem(R.id.menu_master_search).setEnabled(false);
+                    }
+
+                }
+            }
+        };
+
         return true;
     }
 
@@ -614,7 +649,7 @@ public class Master extends ActionBarActivity {
             final Spinner city = (Spinner) locationDialog.findViewById(R.id.spinnerLocationCity);
             final Spinner area = (Spinner) locationDialog.findViewById(R.id.spinnerLocationArea);
 
-            final RadioButton selectFromMap = (RadioButton) locationDialog.findViewById(R.id.radio_select_from_map);
+           // final RadioButton selectFromMap = (RadioButton) locationDialog.findViewById(R.id.radio_select_from_map);
 
             ArrayAdapter<String> adapter_area = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, loc_area);
             area.setAdapter(adapter_area);
@@ -695,14 +730,14 @@ public class Master extends ActionBarActivity {
                 }
             });
 
-            selectFromMap.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            /*selectFromMap.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if (selectFromMap.isChecked())
                         locationDialog.dismiss();
                     getLocationFromMap();
                 }
-            });
+            });*/
 
             return true;
         } else if (id == R.id.menu_master_home) {
@@ -1667,7 +1702,7 @@ public class Master extends ActionBarActivity {
                         subcatID = msg.arg2;
 
                         if(msg.getData().getString("subCategoryName").length()>10)
-                         productsProduct.setText(msg.getData().getString("subCategoryName").substring(0,10));
+                         productsProduct.setText(msg.getData().getString("subCategoryName").substring(0,7)+"...");
                         else
                          productsProduct.setText(msg.getData().getString("subCategoryName"));
 
@@ -2451,6 +2486,7 @@ public class Master extends ActionBarActivity {
                 LoginActivity.prefs.edit().putString("Latitude", "").apply();
                 LoginActivity.prefs.edit().putString("Latitude", "").apply();
                 LoginActivity.prefs.edit().putString("Name", "").apply();
+                LoginActivity.prefs.edit().putString("userStatus","").apply();
 
                 LoginActivity.prefs.edit().putString("Name", "").commit();
                 LoginActivity.prefs.edit().putString("Email", "").commit();
@@ -2467,6 +2503,7 @@ public class Master extends ActionBarActivity {
                 LoginActivity.prefs.edit().putString("LoginStatus", "Logged out").commit();
                 LoginActivity.prefs.edit().putString("Latitude", "").commit();
                 LoginActivity.prefs.edit().putString("Latitude", "").commit();
+                LoginActivity.prefs.edit().putString("userStatus","").commit();
 
                 Message msg = new Message();
                 msg.arg1 = 1;
