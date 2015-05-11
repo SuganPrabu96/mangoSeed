@@ -1,7 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:layout_height="match_parent"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:orientation="vertical"
@@ -45,7 +44,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
-                android:text="Category"
+                android:text="Home"
                 android:layout_weight="1"
                 android:id="@+id/category_cat"/>
 
@@ -76,7 +75,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="18sp"
-                        android:text="Category"
+                        android:text="Home"
                         android:layout_weight="1.3"
                         android:id="@+id/subcategory_cat"/>
 
@@ -93,7 +92,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="18sp"
-                        android:text="Sub Category"
                         android:layout_weight="1.3"
                         android:id="@+id/subcategory_subcat"/>
 
@@ -123,7 +121,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="18sp"
-                        android:text="Category"
+                        android:text="Home"
                         android:layout_weight="1"
                         android:id="@+id/products_cat"/>
 
@@ -139,7 +137,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="18sp"
-                        android:text="Sub Category"
                         android:layout_weight="1"
                         android:id="@+id/products_subcat"
                         />
@@ -156,7 +153,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="18sp"
-                        android:text="Product"
                         android:layout_weight="1"
                         android:id="@+id/products_product"/>
                 </LinearLayout>

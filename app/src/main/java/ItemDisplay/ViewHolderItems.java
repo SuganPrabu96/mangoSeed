@@ -14,6 +14,8 @@ import e_commerce.e_commerce.R;
 public class ViewHolderItems extends RecyclerView.ViewHolder{
     public TextView itemname;
     public ImageView itemimg;
+    public TextView selPrice;
+    public TextView mrp;
     private Context context;
 
 
@@ -22,6 +24,9 @@ public class ViewHolderItems extends RecyclerView.ViewHolder{
         this.context = context;
         itemname = (TextView) itemView.findViewById(R.id.itemname);
         itemimg = (ImageView) itemView.findViewById(R.id.itemimg);
+        selPrice = (TextView) itemView.findViewById(R.id.item_selprice);
+       // mrp = itemView.findViewById(R.id.item_)
+
 
     }
 }

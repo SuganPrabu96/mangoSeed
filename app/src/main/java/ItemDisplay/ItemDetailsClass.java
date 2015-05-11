@@ -9,11 +9,17 @@ public class ItemDetailsClass {
 
     private String itemimgurl = "none";
 
+    private Double itemprice;
 
-    public ItemDetailsClass(String itemtitle, String itemimgurl) {
+    private Double itemMRP;
+
+
+    public ItemDetailsClass(String itemtitle, String itemimgurl, Double itemprice, Double itemMRP) {
 
         this.itemtitle = itemtitle;
         this.itemimgurl = itemimgurl;
+        this.itemprice = itemprice;
+        this.itemMRP = itemMRP;
     }
 
     //   public String getItemcateg(){ return itemcateg;}
@@ -24,4 +30,8 @@ public class ItemDetailsClass {
     public String getItemimgurl() {
         return itemimgurl;
     }
+
+    public Double getItemprice() { return itemprice; }
+
+    public Double getItemMRP() { return itemMRP; }
 }

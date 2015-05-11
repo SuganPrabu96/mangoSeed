@@ -43,6 +43,7 @@ public class ItemsCardAdapter extends RecyclerView.Adapter<ViewHolderItems>{
 
         viewHolder.itemname.setText(item.getItemtitle());
         viewHolder.itemimg.setImageResource(Integer.parseInt(item.getItemimgurl()));
+        viewHolder.selPrice.setText(item.getItemprice().toString());
 
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override

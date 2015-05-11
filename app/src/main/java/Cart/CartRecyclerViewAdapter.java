@@ -60,12 +60,13 @@ public class CartRecyclerViewAdapter extends RecyclerView.Adapter<CartCardViewHo
     public void remove(int position){
         listitems.remove(position);
         notifyItemRemoved(position);
-        notifyItemRangeChanged(position, listitems.size()-position); //TODO have to modify this line
+        notifyItemRangeChanged(position, listitems.size()-position+1);//TODO have to modify this line
 
     }
 
     public int getItemCount() {
         return listitems == null ? 0 : listitems.size();
     }
+
 }
 

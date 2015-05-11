@@ -96,6 +96,7 @@ public class Master extends ActionBarActivity {
     public static String modeOfLogin;
     public static int numCategories, numSubCategories[], categoryID[], productsID[], numProducts,
                   newProductsID[], newProductsCatId[], newProductsSubCatId[];
+    public static ArrayList<Double> productsPrice, productsMRP;
     public static ArrayList<String> categoryName, productsName, productDesc;
     public static ArrayList<int[]> subcategoryID;
     public static ArrayList<String[]> subcategoryName;
@@ -479,10 +480,15 @@ public class Master extends ActionBarActivity {
         fragmentTransaction.commit();
         // Highlight the selected item, update the title, and close the drawer
         drawerList.setItemChecked(position, true);
+        int k;
         if (position != 9) {
             for (int i = 0; i < drawerList.getChildCount(); i++)
                 drawerList.getChildAt(i).setBackgroundColor(getResources().getColor(R.color.NavigationBarUnselectedItem));
-            drawerList.getChildAt(position).setBackgroundColor(getResources().getColor(R.color.NavigationBarSelectedItem));
+            if(position==7)k=7;
+            if(position<7)k=position;
+            else k=position-1;
+
+            drawerList.getChildAt(k).setBackgroundColor(getResources().getColor(R.color.NavigationBarSelectedItem));
         } else
             for (int i = 0; i < drawerList.getChildCount(); i++)
                 drawerList.getChildAt(i).setBackgroundColor(getResources().getColor(R.color.NavigationBarUnselectedItem));
@@ -1624,7 +1630,7 @@ public class Master extends ActionBarActivity {
 
             productsRecyclerView = (RecyclerView) rootView1.findViewById(R.id.my_recycler_view);
             productsRecyclerView.setHasFixedSize(true);
-            productsRecyclerView.setLayoutManager(new GridLayoutManager(rootView1.getContext(), 3));
+            productsRecyclerView.setLayoutManager(new GridLayoutManager(rootView1.getContext(), 2));
             productsRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
             categoryMsgHandler = new Handler() {
@@ -1633,6 +1639,8 @@ public class Master extends ActionBarActivity {
 
                         Log.i("Arg2", String.valueOf(msg.arg2));
                         catID = msg.arg2;
+                        subCategorySubCat.setText(msg.getData().getString("categoryName"));
+                        productsSubCat.setText(msg.getData().getString("categoryName"));
 
                         listOfSubCateg = new ArrayList<>();
 
@@ -1658,6 +1666,11 @@ public class Master extends ActionBarActivity {
                         Log.i("Arg2", String.valueOf(msg.arg2));
                         subcatID = msg.arg2;
 
+                        if(msg.getData().getString("subCategoryName").length()>10)
+                         productsProduct.setText(msg.getData().getString("subCategoryName").substring(0,10));
+                        else
+                         productsProduct.setText(msg.getData().getString("subCategoryName"));
+
                         mAdapter3 = new SubcategoryCardAdapter(listOfSubCateg, rootView1.getContext());
                         subcategoryRecycleView.setAdapter(mAdapter3);
 
@@ -1682,7 +1695,7 @@ public class Master extends ActionBarActivity {
                         Log.i("productsNameLength", String.valueOf(productsName.size()));
                         if(numProducts!=0)
                             for(int i=0;i<numProducts;i++)
-                                listOfItems.add(i, new ItemDetailsClass(productsName.get(i),"1")); //TODO change this to URL from db
+                                listOfItems.add(i, new ItemDetailsClass(productsName.get(i),"1", productsPrice.get(i), productsMRP.get(i))); //TODO change this to URL from db
 
                         else
                             listOfItems = null;
@@ -1844,6 +1857,7 @@ public class Master extends ActionBarActivity {
     public static void removefrom_cart(int position){
 
         Master.cAdapter.remove(position);
+
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -2134,8 +2148,10 @@ public class Master extends ActionBarActivity {
         private boolean loadItemsSuccess = false;
         private int[] newItemsIDs, oldItemsIDs;
         private String[] newItemsName, oldItemsNames;
+        private Double[] newItemsPrice, oldItemsPrice, oldItemsMRP, newItemsMRP;
         private int tempProductsId;
         private String tempProductsName;
+        private Double tempProductsPrice, tempProductsMRP;
         private boolean newItemCatSuccess = false, newItemSubCatSuccess = false, newItemProductSuccess= false;
         private int newID = 0, oldID = 0;
 
@@ -2179,9 +2195,15 @@ public class Master extends ActionBarActivity {
                         newItemsIDs = new int[numProducts];
                         oldItemsNames = new String[numProducts];
                         newItemsName = new String[numProducts];
+                        oldItemsPrice = new Double[numProducts];
+                        newItemsPrice = new Double[numProducts];
+                        oldItemsMRP = new Double[numProducts];
+                        newItemsMRP = new Double[numProducts];
 
                         productDesc = new ArrayList<>();
                         productsName = new ArrayList<>();
+                        productsPrice = new ArrayList<>();
+                        productsMRP = new ArrayList<>();
 
                         for(int i=0;i<numProducts;i++) {
                             tempItemJSON = new JSONObject(String.valueOf(itemsList.getJSONObject(i)));
@@ -2189,6 +2211,8 @@ public class Master extends ActionBarActivity {
 
                             tempProductsId = tempItemJSON.getInt("PID");
                             tempProductsName = tempItemJSON.getString("name");
+                            tempProductsPrice = tempItemJSON.getDouble("price");
+                            tempProductsMRP = tempItemJSON.getDouble("MRP");
 
                         if(newProductsCatId!=null)
                             for(int j=0;j<newProductsCatId.length;j++){
@@ -2226,12 +2250,16 @@ public class Master extends ActionBarActivity {
                             if(newItemProductSuccess && newItemSubCatSuccess && newItemCatSuccess){
                                 newItemsIDs[newID] = tempProductsId;
                                 newItemsName[newID] = tempProductsName;
+                                newItemsPrice[newID] = tempProductsPrice;
+                                newItemsMRP[newID] = tempProductsMRP;
                                 newID++;
                             }
 
                             else{
                                 oldItemsIDs[oldID] = tempProductsId;
                                 oldItemsNames[oldID] = tempProductsName;
+                                oldItemsPrice[oldID] = tempProductsPrice;
+                                oldItemsMRP[oldID] = tempProductsMRP;
                                 oldID++;
                             }
 
@@ -2244,6 +2272,8 @@ public class Master extends ActionBarActivity {
                         for(int i=0;i<newID;i++){
                             productsID[i] = newItemsIDs[i];
                             productsName.add(newItemsName[i]);
+                            productsPrice.add(newItemsPrice[i]);
+                            productsMRP.add(newItemsMRP[i]);
                         }
 
                         Log.i("productsNameStatus", String.valueOf(productsName.isEmpty()));
@@ -2251,12 +2281,16 @@ public class Master extends ActionBarActivity {
                         for(int j=productsID.length;j<(productsID.length+oldID);j++){
                             productsID[j] = oldItemsIDs[j-productsID.length];
                             productsName.add(oldItemsNames[j-productsID.length]);
+                            productsPrice.add(oldItemsPrice[j-productsPrice.size()]);
+                            productsMRP.add(oldItemsMRP[j-productsMRP.size()]);
                         }
 
                         else
                         for(int j=0;j<oldID;j++){
                             productsID[j] = oldItemsIDs[j];
                             productsName.add(oldItemsNames[j]);
+                            productsPrice.add(oldItemsPrice[j]);
+                            productsMRP.add(oldItemsMRP[j]);
                         }
 
                         Log.i("productsLength", String.valueOf(productsName.size()));

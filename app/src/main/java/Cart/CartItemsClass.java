@@ -9,10 +9,6 @@ public class CartItemsClass {
     private String cartitemname;
     private int itemquantity;
 
-
-
-
-
     public CartItemsClass(String itemtitle) {
 
         this.cartitemname = itemtitle;

@@ -1,6 +1,7 @@
 package ItemDisplay;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Message;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -47,6 +48,11 @@ public class SubcategoryCardAdapter extends RecyclerView.Adapter<ViewHolderSubca
                 Message subcategoryMsg = new Message();
                 subcategoryMsg.arg1=2;
                 subcategoryMsg.arg2=position+1;
+
+                Bundle b = new Bundle();
+                b.putString("subCategoryName",item.getSubcategtitle());
+
+                subcategoryMsg.setData(b);
                 Master.ProductsFragment.subcategoryMsgHandler.sendMessage(subcategoryMsg);
             }
         });
