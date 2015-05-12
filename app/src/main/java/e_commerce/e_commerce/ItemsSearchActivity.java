@@ -1,5 +1,6 @@
 package e_commerce.e_commerce;
 
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -78,6 +79,18 @@ public class ItemsSearchActivity extends ActionBarActivity {
 
     private class Search extends AsyncTask<String,Void,String>{
 
+        private ProgressDialog p1 = new ProgressDialog(getApplicationContext());
+        private boolean searchSuccess = false;
+
+        @Override
+        protected void onPreExecute(){
+
+            p1.setTitle("Searching...");
+            p1.setCancelable(false);
+            p1.show();
+
+        }
+
         @Override
         protected String doInBackground(String... params) {
 
@@ -95,23 +108,30 @@ public class ItemsSearchActivity extends ActionBarActivity {
                 try {
                     JSONObject searchJSON = new JSONObject(SearchReturnedJSON);
 
-                    JSONArray searchJSONArray = new JSONArray(String.valueOf(searchJSON.getJSONArray("items")));
+                    if(searchJSON.getString("success").equals("true")) {
 
-                    Name = new ArrayList<>();
-                    MRP = new ArrayList<>();
-                    price = new ArrayList<>();
+                        searchSuccess = true;
+                        JSONArray searchJSONArray = new JSONArray(String.valueOf(searchJSON.getJSONArray("items")));
 
-                    for(int i=0;i<searchJSONArray.length();i++){
-                        JSONObject temp = searchJSONArray.getJSONObject(i);
-                        Name.add(temp.getString("name"));
-                        MRP.add(temp.getDouble("MRP"));
-                        price.add(temp.getDouble("price"));
+                        Name = new ArrayList<>();
+                        MRP = new ArrayList<>();
+                        price = new ArrayList<>();
+
+                        for (int i = 0; i < searchJSONArray.length(); i++) {
+                            JSONObject temp = searchJSONArray.getJSONObject(i);
+                            Name.add(temp.getString("name"));
+                            MRP.add(temp.getDouble("MRP"));
+                            price.add(temp.getDouble("price"));
+                        }
+                        listOfItems = new ArrayList<>();
+
+                        for (int i = 0; i < searchJSONArray.length(); i++) {
+                            listOfItems.add(new ItemDetailsClass(Name.get(i), "1", price.get(i), MRP.get(i))); //TODO Have to change URL
+                        }
                     }
-                    listOfItems = new ArrayList<>();
 
-                    for(int i=0;i<searchJSONArray.length();i++){
-                        listOfItems.add(new ItemDetailsClass(Name.get(i),"1",price.get(i),MRP.get(i))); //TODO Have to change URL
-                    }
+                    else
+                        searchSuccess = false;
 
                     Log.i("searchJSON",searchJSON.toString());
                 } catch (JSONException e) {
@@ -125,9 +145,17 @@ public class ItemsSearchActivity extends ActionBarActivity {
         @Override
         protected void onPostExecute(String result){
 
-            Message msg = new Message();
-            msg.arg1 = 1;
-            ItemsSearchActivity.searchHandler.sendMessage(msg);
+            if(p1!=null && p1.isShowing()){
+                p1.cancel();
+                p1.hide();
+            }
+
+            if(searchSuccess) {
+                Message msg = new Message();
+                msg.arg1 = 1;
+                ItemsSearchActivity.searchHandler.sendMessage(msg);
+            }
+
         }
     }
 

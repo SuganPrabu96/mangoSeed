@@ -43,42 +43,60 @@
                     android:paddingTop="@dimen/activity_vertical_margin"
                     android:text="Item's Name goes here"></TextView>
 
-                <Button
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/itemdetail_addbutton"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="125dp"
+                    android:weightSum="2">
 
-                    android:paddingRight="10dp"
-                    android:paddingTop="@dimen/activity_vertical_margin"
-                    android:text="Add To Cart"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginRight="20dp"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
 
-                    android:layout_gravity="right|center_vertical" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="20sp"
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="20sp"
+                            android:paddingLeft="@dimen/activity_horizontal_margin"
+                            android:paddingRight="@dimen/activity_horizontal_margin"
+                            android:paddingTop="@dimen/activity_vertical_margin"
 
-                    android:paddingLeft="@dimen/activity_horizontal_margin"
-                    android:paddingRight="@dimen/activity_horizontal_margin"
-                    android:paddingTop="@dimen/activity_vertical_margin"
+                            android:fontFamily="sans-serif-bold"
+                            android:text="Price :"
+                            android:paddingBottom="20dp"
+                            android:layout_gravity="left|center_vertical" />
 
-                    android:fontFamily="sans-serif-bold"
-                    android:text="Price :"
-                    android:paddingBottom="20dp"
-                    android:layout_gravity="left|center_vertical" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/itemdetail_price"
+                            android:textSize="20sp"
+                            android:layout_marginRight="20dp"
+                            android:layout_gravity="center" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Rs. 150 (say)"
-                    android:textSize="20sp"
-                    android:layout_marginRight="20dp"
-                    android:layout_gravity="center" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+                        <Button
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/itemdetail_addbutton"
+
+                            android:paddingRight="10dp"
+                            android:paddingTop="@dimen/activity_vertical_margin"
+                            android:text="Add To Cart"
+                            android:layout_marginRight="20dp"
+
+                            android:layout_gravity="right|center_vertical" />
+
+                    </LinearLayout>
+                </LinearLayout>
 
 
             </FrameLayout>

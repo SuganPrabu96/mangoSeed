@@ -123,7 +123,7 @@ public class Master extends ActionBarActivity {
     private static String updateDetailsReturnedJSON;
     public static ProgressDialog updateProgress, locationProgress, loadItemsProgress, logoutProgress, loadCatSubCatProgress,
             loadNewItemsProgress;
-    public static Handler locationHandler, logoutHandler, loadItems, loadItemImages, newItemsHandler, menuHandler;
+    public static Handler locationHandler, logoutHandler, loadItems, loadItemImages, newItemsHandler, menuHandler, itemDetailsHandler;
     public static boolean logoutSuccess = false;
     public static InputMethodManager inputMethodManager;
     public static RecyclerView cartItemRecyclerView;
@@ -152,6 +152,7 @@ public class Master extends ActionBarActivity {
         cAdapter = new CartRecyclerViewAdapter(cartitems, getApplicationContext());
 
         menuHandler = new Handler();
+        itemDetailsHandler = new Handler();
 
         updateProgress = new ProgressDialog(Master.this);
         locationProgress = new ProgressDialog(Master.this);
@@ -1284,11 +1285,15 @@ public class Master extends ActionBarActivity {
                             Log.i("actionId", String.valueOf(actionId));
 
                             int result = actionId & EditorInfo.IME_MASK_ACTION;
-                            if(result==EditorInfo.IME_ACTION_DONE)
-                                inputMethodManager.hideSoftInputFromWindow(editNewName.getWindowToken(),0);
+                            if(result==EditorInfo.IME_ACTION_DONE) {
+                                inputMethodManager.hideSoftInputFromWindow(editNewName.getWindowToken(), 0);
+                                name.setVisibility(View.VISIBLE);
+                                editNewName.setVisibility(View.INVISIBLE);
+                            }
                             return false;
                         }
                     });
+
                     if (name.getText() != s.toString()) {
                         name.setText(s.toString());
                         editNewName.setHint(s.toString());
@@ -1331,8 +1336,11 @@ public class Master extends ActionBarActivity {
                             Log.i("actionId", String.valueOf(actionId));
 
                             int result = actionId & EditorInfo.IME_MASK_ACTION;
-                            if(result==EditorInfo.IME_ACTION_DONE)
-                                inputMethodManager.hideSoftInputFromWindow(editNewEmail.getWindowToken(),0);
+                            if(result==EditorInfo.IME_ACTION_DONE) {
+                                inputMethodManager.hideSoftInputFromWindow(editNewName.getWindowToken(), 0);
+                                email.setVisibility(View.VISIBLE);
+                                editNewEmail.setVisibility(View.INVISIBLE);
+                            }
                             return false;
                         }
                     });
@@ -1377,8 +1385,11 @@ public class Master extends ActionBarActivity {
                             Log.i("actionId", String.valueOf(actionId));
 
                             int result = actionId & EditorInfo.IME_MASK_ACTION;
-                            if(result==EditorInfo.IME_ACTION_DONE)
-                                inputMethodManager.hideSoftInputFromWindow(editNewPhone.getWindowToken(),0);
+                            if(result==EditorInfo.IME_ACTION_DONE) {
+                                inputMethodManager.hideSoftInputFromWindow(editNewName.getWindowToken(), 0);
+                                phone.setVisibility(View.VISIBLE);
+                                editNewPhone.setVisibility(View.INVISIBLE);
+                            }
                             return false;
                         }
                     });
@@ -1469,8 +1480,11 @@ public class Master extends ActionBarActivity {
                             Log.i("actionId", String.valueOf(actionId));
 
                             int result = actionId & EditorInfo.IME_MASK_ACTION;
-                            if(result==EditorInfo.IME_ACTION_DONE)
-                                inputMethodManager.hideSoftInputFromWindow(editNewPassword.getWindowToken(),0);
+                            if(result==EditorInfo.IME_ACTION_DONE) {
+                                inputMethodManager.hideSoftInputFromWindow(editNewName.getWindowToken(), 0);
+                                password.setVisibility(View.VISIBLE);
+                                editNewPassword.setVisibility(View.INVISIBLE);
+                            }
                             return false;
                         }
                     });
@@ -1687,6 +1701,21 @@ public class Master extends ActionBarActivity {
             productsRecyclerView.setHasFixedSize(true);
             productsRecyclerView.setLayoutManager(new GridLayoutManager(rootView1.getContext(), 2));
             productsRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+            itemDetailsHandler = new Handler() {
+
+                public void handleMessage(Message msg){
+                    if(msg.arg1==1){
+                        Bundle b = msg.getData();
+                        Intent i = new Intent(getActivity(), ParallaxToolbarScrollViewActivity.class);
+                        i.putExtra("name",b.getString("name"));
+                        i.putExtra("image",b.getString("image"));
+                        i.putExtra("price",b.getDouble("price"));
+                        i.putExtra("MRP",b.getDouble("MRP"));
+                        startActivity(i);
+                    }
+                }
+            };
 
             categoryMsgHandler = new Handler() {
                 public void handleMessage(Message msg) {
@@ -2385,8 +2414,8 @@ public class Master extends ActionBarActivity {
 
             }
 
-            for(int i=0;i<numProducts;i++)
-                new LoadProductImages().execute(String.valueOf(productsID[i]));
+            /*for(int i=0;i<numProducts;i++)
+                new LoadProductImages().execute(String.valueOf(productsID[i]));*/
 
         }
 
