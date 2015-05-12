@@ -873,6 +873,7 @@ public class Master extends ActionBarActivity {
             cartItemRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
             cartItemRecyclerView.setAdapter(cAdapter);
+
             return rootView;
         }
     }
@@ -1910,7 +1911,9 @@ public class Master extends ActionBarActivity {
 
     public static void removefrom_cart(int position){
 
-        Master.cAdapter.remove(position);
+        //Master.cAdapter.remove(position);
+        cAdapter.remove(position,cAdapter);
+        cAdapter.notifyDataSetChanged();
 
     }
 

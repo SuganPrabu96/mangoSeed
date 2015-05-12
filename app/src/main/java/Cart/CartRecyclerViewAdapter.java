@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
 
 import java.util.ArrayList;
@@ -57,10 +58,11 @@ public class CartRecyclerViewAdapter extends RecyclerView.Adapter<CartCardViewHo
         notifyItemInserted(listitems.indexOf(item));
     }
 
-    public void remove(int position){
+    public void remove(int position,CartRecyclerViewAdapter c){
         listitems.remove(position);
-        notifyItemRemoved(position);
-        notifyItemRangeChanged(position, listitems.size()-position+1);//TODO have to modify this line
+       c.notifyDataSetChanged();
+//        notifyItemRemoved(position);
+//        notifyItemRangeChanged(position, listitems.size()-position+1);//TODO have to modify this line
 
     }
 
