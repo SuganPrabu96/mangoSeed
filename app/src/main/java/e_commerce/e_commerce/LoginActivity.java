@@ -215,7 +215,6 @@ public class LoginActivity extends FragmentActivity implements
                 userPassword = passwordEdit.getText().toString();
                 email = emailEdit.getText().toString();
 
-                //TODO check with the database for email and password
                 if (!userPassword.isEmpty() && !email.isEmpty()) {
                     if(MainActivity.internetConnection.isConnectingToInternet())
                         new LoginValidation().execute();

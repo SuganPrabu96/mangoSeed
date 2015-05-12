@@ -191,7 +191,7 @@ public class Master extends ActionBarActivity {
         if(LoginActivity.prefs.getString("userStatus","").equals("Just registered"))
             getLocationForItems();
 
-        else if(!LoginActivity.prefs.getString("LoginStatus","").equals("Already Logged in")){
+        else{
             new LoadCatSubCat().execute();
             new NewItems().execute(LoginActivity.prefs.getString("session",""), String.valueOf(System.currentTimeMillis()));
         }
@@ -248,7 +248,6 @@ public class Master extends ActionBarActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setIcon(R.drawable.ic_drawer);
         mDrawerToggle.syncState();
-
 
         Master.locationHandler = new Handler() {
             public void handleMessage(Message msg) {
@@ -1270,29 +1269,6 @@ public class Master extends ActionBarActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    editNewName.setOnKeyListener(new View.OnKeyListener() {
-                            @Override
-                            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                                if(event.getKeyCode()==KeyEvent.KEYCODE_ENTER)
-                                    inputMethodManager.hideSoftInputFromWindow(editNewName.getWindowToken(), 0);
-                                return false;
-                            }
-                     });
-                    editNewName.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                        @Override
-                        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                            Log.i("Inside onEditorAction","True");
-                            Log.i("actionId", String.valueOf(actionId));
-
-                            int result = actionId & EditorInfo.IME_MASK_ACTION;
-                            if(result==EditorInfo.IME_ACTION_DONE) {
-                                inputMethodManager.hideSoftInputFromWindow(editNewName.getWindowToken(), 0);
-                                name.setVisibility(View.VISIBLE);
-                                editNewName.setVisibility(View.INVISIBLE);
-                            }
-                            return false;
-                        }
-                    });
 
                     if (name.getText() != s.toString()) {
                         name.setText(s.toString());
@@ -1321,29 +1297,7 @@ public class Master extends ActionBarActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    editNewEmail.setOnKeyListener(new View.OnKeyListener() {
-                        @Override
-                        public boolean onKey(View v, int keyCode, KeyEvent event) {
-                            if(event.getKeyCode()==KeyEvent.KEYCODE_ENTER)
-                                inputMethodManager.hideSoftInputFromWindow(editNewEmail.getWindowToken(), 0);
-                            return false;
-                        }
-                    });
-                    editNewEmail.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                        @Override
-                        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                            Log.i("Inside onEditorAction","True");
-                            Log.i("actionId", String.valueOf(actionId));
 
-                            int result = actionId & EditorInfo.IME_MASK_ACTION;
-                            if(result==EditorInfo.IME_ACTION_DONE) {
-                                inputMethodManager.hideSoftInputFromWindow(editNewName.getWindowToken(), 0);
-                                email.setVisibility(View.VISIBLE);
-                                editNewEmail.setVisibility(View.INVISIBLE);
-                            }
-                            return false;
-                        }
-                    });
                     if (email.getText() != s.toString()) {
                         email.setText(s.toString());
                         editNewEmail.setHint(s.toString());
@@ -1370,29 +1324,7 @@ public class Master extends ActionBarActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    editNewPhone.setOnKeyListener(new View.OnKeyListener() {
-                        @Override
-                        public boolean onKey(View v, int keyCode, KeyEvent event) {
-                            if(event.getKeyCode()==KeyEvent.KEYCODE_ENTER)
-                                inputMethodManager.hideSoftInputFromWindow(editNewPhone.getWindowToken(), 0);
-                            return false;
-                        }
-                    });
-                    editNewPhone.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                        @Override
-                        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                            Log.i("Inside onEditorAction","True");
-                            Log.i("actionId", String.valueOf(actionId));
 
-                            int result = actionId & EditorInfo.IME_MASK_ACTION;
-                            if(result==EditorInfo.IME_ACTION_DONE) {
-                                inputMethodManager.hideSoftInputFromWindow(editNewName.getWindowToken(), 0);
-                                phone.setVisibility(View.VISIBLE);
-                                editNewPhone.setVisibility(View.INVISIBLE);
-                            }
-                            return false;
-                        }
-                    });
                     if (phone.getText() != s.toString()) {
                         phone.setText(s.toString());
                         editNewPhone.setHint(s.toString());
@@ -1419,26 +1351,7 @@ public class Master extends ActionBarActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    editNewAddress.setOnKeyListener(new View.OnKeyListener() {
-                        @Override
-                        public boolean onKey(View v, int keyCode, KeyEvent event) {
-                            if(event.getKeyCode()==KeyEvent.KEYCODE_ENTER)
-                                inputMethodManager.hideSoftInputFromWindow(editNewAddress.getWindowToken(), 0);
-                            return false;
-                        }
-                    });
-                    editNewAddress.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                        @Override
-                        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                            Log.i("Inside onEditorAction","True");
-                            Log.i("actionId", String.valueOf(actionId));
 
-                            int result = actionId & EditorInfo.IME_MASK_ACTION;
-                            if(result==EditorInfo.IME_ACTION_DONE)
-                                inputMethodManager.hideSoftInputFromWindow(editNewAddress.getWindowToken(),0);
-                            return false;
-                        }
-                    });
                     if (address.getText() != s.toString()) {
                         address.setText(s.toString());
                         editNewAddress.setText(s.toString());
@@ -1465,29 +1378,7 @@ public class Master extends ActionBarActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    editNewPassword.setOnKeyListener(new View.OnKeyListener() {
-                        @Override
-                        public boolean onKey(View v, int keyCode, KeyEvent event) {
-                            if(event.getKeyCode()==KeyEvent.KEYCODE_ENTER)
-                                inputMethodManager.hideSoftInputFromWindow(editNewPassword.getWindowToken(), 0);
-                            return false;
-                        }
-                    });
-                    editNewPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                        @Override
-                        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                            Log.i("Inside onEditorAction","True");
-                            Log.i("actionId", String.valueOf(actionId));
 
-                            int result = actionId & EditorInfo.IME_MASK_ACTION;
-                            if(result==EditorInfo.IME_ACTION_DONE) {
-                                inputMethodManager.hideSoftInputFromWindow(editNewName.getWindowToken(), 0);
-                                password.setVisibility(View.VISIBLE);
-                                editNewPassword.setVisibility(View.INVISIBLE);
-                            }
-                            return false;
-                        }
-                    });
                     if (password.getText() != s.toString()) {
                         password.setText(s.toString());
                         editNewPassword.setHint(s.toString());
@@ -1500,6 +1391,124 @@ public class Master extends ActionBarActivity {
                         submit.setVisibility(View.INVISIBLE);
                 }
             });
+
+            editNewName.setOnKeyListener(new View.OnKeyListener() {
+                @Override
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    if(event.getKeyCode()==KeyEvent.KEYCODE_ENTER)
+                        inputMethodManager.hideSoftInputFromWindow(editNewName.getWindowToken(), 0);
+                    return false;
+                }
+            });
+            editNewName.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    Log.i("Inside onEditorAction","True");
+                    Log.i("actionId", String.valueOf(actionId));
+
+                    int result = actionId & EditorInfo.IME_MASK_ACTION;
+                    if(result==EditorInfo.IME_ACTION_DONE) {
+                        inputMethodManager.hideSoftInputFromWindow(editNewName.getWindowToken(), 0);
+                        name.setVisibility(View.VISIBLE);
+                        editNewName.setVisibility(View.INVISIBLE);
+                    }
+                    return false;
+                }
+            });
+
+            editNewEmail.setOnKeyListener(new View.OnKeyListener() {
+                @Override
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    if(event.getKeyCode()==KeyEvent.KEYCODE_ENTER)
+                        inputMethodManager.hideSoftInputFromWindow(editNewEmail.getWindowToken(), 0);
+                    return false;
+                }
+            });
+            editNewEmail.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    Log.i("Inside onEditorAction","True");
+                    Log.i("actionId", String.valueOf(actionId));
+
+                    int result = actionId & EditorInfo.IME_MASK_ACTION;
+                    if(result==EditorInfo.IME_ACTION_DONE) {
+                        inputMethodManager.hideSoftInputFromWindow(editNewName.getWindowToken(), 0);
+                        email.setVisibility(View.VISIBLE);
+                        editNewEmail.setVisibility(View.INVISIBLE);
+                    }
+                    return false;
+                }
+            });
+
+            editNewPhone.setOnKeyListener(new View.OnKeyListener() {
+                @Override
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    if(event.getKeyCode()==KeyEvent.KEYCODE_ENTER)
+                        inputMethodManager.hideSoftInputFromWindow(editNewPhone.getWindowToken(), 0);
+                    return false;
+                }
+            });
+            editNewPhone.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    Log.i("Inside onEditorAction","True");
+                    Log.i("actionId", String.valueOf(actionId));
+
+                    int result = actionId & EditorInfo.IME_MASK_ACTION;
+                    if(result==EditorInfo.IME_ACTION_DONE) {
+                        inputMethodManager.hideSoftInputFromWindow(editNewName.getWindowToken(), 0);
+                        phone.setVisibility(View.VISIBLE);
+                        editNewPhone.setVisibility(View.INVISIBLE);
+                    }
+                    return false;
+                }
+            });
+
+            editNewAddress.setOnKeyListener(new View.OnKeyListener() {
+                @Override
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    if(event.getKeyCode()==KeyEvent.KEYCODE_ENTER)
+                        inputMethodManager.hideSoftInputFromWindow(editNewAddress.getWindowToken(), 0);
+                    return false;
+                }
+            });
+            editNewAddress.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    Log.i("Inside onEditorAction","True");
+                    Log.i("actionId", String.valueOf(actionId));
+
+                    int result = actionId & EditorInfo.IME_MASK_ACTION;
+                    if(result==EditorInfo.IME_ACTION_DONE)
+                        inputMethodManager.hideSoftInputFromWindow(editNewAddress.getWindowToken(),0);
+                    return false;
+                }
+            });
+
+            editNewPassword.setOnKeyListener(new View.OnKeyListener() {
+                @Override
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    if(event.getKeyCode()==KeyEvent.KEYCODE_ENTER)
+                        inputMethodManager.hideSoftInputFromWindow(editNewPassword.getWindowToken(), 0);
+                    return false;
+                }
+            });
+            editNewPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    Log.i("Inside onEditorAction","True");
+                    Log.i("actionId", String.valueOf(actionId));
+
+                    int result = actionId & EditorInfo.IME_MASK_ACTION;
+                    if(result==EditorInfo.IME_ACTION_DONE) {
+                        inputMethodManager.hideSoftInputFromWindow(editNewName.getWindowToken(), 0);
+                        password.setVisibility(View.VISIBLE);
+                        editNewPassword.setVisibility(View.INVISIBLE);
+                    }
+                    return false;
+                }
+            });
+
 
             submit.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -2074,7 +2083,10 @@ public class Master extends ActionBarActivity {
                             loadCatSubCatProgress.hide();
                             loadCatSubCatProgress.dismiss();
                         }
+
+                        selectItem(0);
                     }
+
                 }
             };
 
@@ -2197,7 +2209,6 @@ public class Master extends ActionBarActivity {
                     JSONObject locationJSON = new JSONObject(locationReturnedJSON);
                     if(locationJSON.getString("success").equals("true")){
                         locationDetailsSuccess = true;
-                        //TODO load items from this place
                     }
                     else
                         locationDetailsSuccess = false;
@@ -2273,7 +2284,7 @@ public class Master extends ActionBarActivity {
                         newID = 0;
                         oldID =0;
                         loadItemsSuccess = true;
-                        JSONArray itemsList = new JSONArray(String.valueOf(itemsJSON.getJSONArray("items"))); //TODO change the key name
+                        JSONArray itemsList = new JSONArray(String.valueOf(itemsJSON.getJSONArray("items")));
                         JSONObject tempItemJSON;
                         numProducts = itemsJSON.getInt("itemCount");
                         productsID = new int[numProducts];

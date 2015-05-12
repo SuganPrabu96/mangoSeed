@@ -20,14 +20,12 @@ public class MainActivity extends ActionBarActivity{
 
         internetConnection = new ConnectionDetector(getApplicationContext());
 
-        // TODO if (internetConnection.isConnectingToInternet() == true) {
         if(true){
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                    //TODO change this to LoginActivity.class after fixing FB and G+ login
                     finish();
                 }
             }, 2000);
