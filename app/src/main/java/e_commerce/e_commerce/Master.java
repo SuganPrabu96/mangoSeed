@@ -919,7 +919,8 @@ public class Master extends ActionBarActivity {
 
         ViewPager mViewPager;
         ViewPagerAdapter customAdapter;
-        private Button _btn1, _btn2, _btn3;
+        private ImageView _btn1, _btn2, _btn3;
+        private LinearLayout.LayoutParams selectedParams, unselectedParams;
 
         public HelpFragment() {
         }
@@ -935,11 +936,22 @@ public class Master extends ActionBarActivity {
             mViewPager.setAdapter(customAdapter);
             mViewPager.setCurrentItem(0);
 
-            _btn1 = (Button) rootView.findViewById(R.id.btn1);
-            _btn2 = (Button) rootView.findViewById(R.id.btn2);
-            _btn3 = (Button) rootView.findViewById(R.id.btn3);
+            selectedParams = new LinearLayout.LayoutParams(35,35);
+            unselectedParams = new LinearLayout.LayoutParams(25,25);
+
+            selectedParams.setMarginEnd(20);
+            unselectedParams.setMarginEnd(20);
+
+            _btn1 = (ImageView) rootView.findViewById(R.id.btn1);
+            _btn2 = (ImageView) rootView.findViewById(R.id.btn2);
+            _btn3 = (ImageView) rootView.findViewById(R.id.btn3);
 
             _btn1.setBackgroundResource(R.drawable.rounded_cell_selected);
+
+            _btn1.setLayoutParams(selectedParams);
+            _btn2.setLayoutParams(unselectedParams);
+            _btn3.setLayoutParams(unselectedParams);
+
             mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                 @Override
                 public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -953,14 +965,23 @@ public class Master extends ActionBarActivity {
                         _btn1.setBackgroundResource(R.drawable.rounded_cell_selected);
                         _btn2.setBackgroundResource(R.drawable.rounded_cell);
                         _btn3.setBackgroundResource(R.drawable.rounded_cell);
+                        _btn1.setLayoutParams(selectedParams);
+                        _btn2.setLayoutParams(unselectedParams);
+                        _btn3.setLayoutParams(unselectedParams);
                     } else if (position == 1) {
                         _btn1.setBackgroundResource(R.drawable.rounded_cell);
                         _btn2.setBackgroundResource(R.drawable.rounded_cell_selected);
                         _btn3.setBackgroundResource(R.drawable.rounded_cell);
+                        _btn1.setLayoutParams(unselectedParams);
+                        _btn2.setLayoutParams(selectedParams);
+                        _btn3.setLayoutParams(unselectedParams);
                     } else if (position == 2) {
                         _btn1.setBackgroundResource(R.drawable.rounded_cell);
                         _btn2.setBackgroundResource(R.drawable.rounded_cell);
                         _btn3.setBackgroundResource(R.drawable.rounded_cell_selected);
+                        _btn1.setLayoutParams(unselectedParams);
+                        _btn2.setLayoutParams(unselectedParams);
+                        _btn3.setLayoutParams(selectedParams);
                     }
                 }
 
@@ -1251,7 +1272,10 @@ public class Master extends ActionBarActivity {
                     editNewEmail.setVisibility(View.INVISIBLE);
                     editNewName.setVisibility(View.INVISIBLE);
 
+                    inputMethodManager.showSoftInput(editNewPassword,InputMethodManager.RESULT_HIDDEN);
+/*
                     inputMethodManager.showSoftInput(editNewPassword,InputMethodManager.SHOW_FORCED);
+*/
                 }
 
             });
@@ -2083,7 +2107,6 @@ public class Master extends ActionBarActivity {
                             loadCatSubCatProgress.hide();
                             loadCatSubCatProgress.dismiss();
                         }
-
                         selectItem(0);
                     }
 
