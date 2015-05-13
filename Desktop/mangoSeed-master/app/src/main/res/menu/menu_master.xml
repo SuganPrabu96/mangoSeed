@@ -1,0 +1,23 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" tools:context="e_commerce.e_commerce.Master">
+
+    <item android:id="@+id/menu_master_home"
+        android:title="Home"
+        android:icon="@drawable/ic_launcher"
+        android:orderInCategory="200"
+        app:showAsAction="always"/>
+
+    <item android:id="@+id/menu_master_location"
+        android:title="Location"
+        android:icon="@drawable/ic_launcher"
+        app:showAsAction="always"
+        android:orderInCategory="100"/>
+
+    <item android:id="@+id/menu_master_search"
+        android:title="Search"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_launcher"
+        app:actionViewClass="android.support.v7.widget.SearchView" />
+
+</menu>

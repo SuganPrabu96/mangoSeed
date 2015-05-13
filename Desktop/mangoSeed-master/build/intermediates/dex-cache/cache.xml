@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="2c91c949a45a21cdecf26e03951e46c7beec9ad8">
+        <dex dex="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\pre-dexed\debug\classes-d35147748ab29239e09763b5387b188849178a5a.jar" />
+    </item>
+    <item
+        jar="C:\Users\ssrik_000\AppData\Local\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\21.0.3\support-annotations-21.0.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="4b74cefe1f0c1b819e7260c8627a14674e37fd35">
+        <dex dex="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\pre-dexed\debug\support-annotations-21.0.3-6568c2f17e908db5e4dc81b31b3d60e631a4d657.jar" />
+    </item>
+    <item
+        jar="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\exploded-aar\com.github.ksoichiro\android-observablescrollview\1.5.0\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="010ee9e87a286afcaeaed368dcf829e42d0aa2a0">
+        <dex dex="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\pre-dexed\debug\classes-caf1de46d5ff1a30fa671fe96b9185fa06a4cad9.jar" />
+    </item>
+    <item
+        jar="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\exploded-aar\de.hdodenhof\circleimageview\1.2.1\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="4b868b833b0887aa48c4e581558eef4f1196f6a2">
+        <dex dex="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\pre-dexed\debug\classes-ea5ae75d94802ba5bf77cc1396b917f4577abc49.jar" />
+    </item>
+    <item
+        jar="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\exploded-aar\com.android.support\recyclerview-v7\21.0.3\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="4b8945fc23a7461c6fdde15753456d64b0a9358b">
+        <dex dex="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\pre-dexed\debug\classes-ab4afef708d0708083754c8a95564ad1b3bf70b0.jar" />
+    </item>
+    <item
+        jar="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\21.0.3\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="81d42bf983a8741f4888a6e333e454e4a5e0eeb7">
+        <dex dex="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\pre-dexed\debug\classes-5bba75591d55f217e2a6975338fe2125940052e0.jar" />
+    </item>
+    <item
+        jar="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\libs\internal_impl-21.0.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
+        <dex dex="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3-8c642f3b8955c6a65fd2c27351fc0b0184ee330b.jar" />
+    </item>
+    <item
+        jar="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\exploded-aar\com.sothree.slidinguppanel\library\3.0.0\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="c1200ab3b93b8f42c0878b00eb79a84c1f112cf7">
+        <dex dex="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\pre-dexed\debug\classes-0fce91f3574c3c5ad6a747b0f73ad036afad8bed.jar" />
+    </item>
+    <item
+        jar="C:\Users\ssrik_000\.gradle\caches\modules-2\files-2.1\com.parse.bolts\bolts-android\1.1.4\129874135e6081269ace2312092031558865de12\bolts-android-1.1.4.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="129874135e6081269ace2312092031558865de12">
+        <dex dex="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\pre-dexed\debug\bolts-android-1.1.4-6daf14afae5f13c463a8e0cf977b55f02f387f10.jar" />
+    </item>
+    <item
+        jar="C:\Users\ssrik_000\.gradle\caches\modules-2\files-2.1\com.nineoldandroids\library\2.4.0\e9b63380f3a242dbdbf103a2355ad7e43bad17cb\library-2.4.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="e9b63380f3a242dbdbf103a2355ad7e43bad17cb">
+        <dex dex="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\pre-dexed\debug\library-2.4.0-dcbf62c23cd80e5c0cd5e49c1a456f3796b33317.jar" />
+    </item>
+    <item
+        jar="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\exploded-aar\com.google.android.gms\play-services\6.5.87\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="dd9247ea0fabe8ee479638c4b4a23e93752be256">
+        <dex dex="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\pre-dexed\debug\classes-18dc5859a7e9713a5bc2c51744a1da92b552d59d.jar" />
+    </item>
+    <item
+        jar="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\exploded-aar\com.android.support\cardview-v7\21.0.3\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="00b0b7233e1ec64acebfac40d4983d32d4712426">
+        <dex dex="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\pre-dexed\debug\classes-a270bde2b6be7d7c4b9bb8197b0f50e85fe05e90.jar" />
+    </item>
+    <item
+        jar="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\exploded-aar\com.facebook.android\facebook-android-sdk\3.23.0\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="96a08acffc0d3cf8425107b82bc4009a1f82a66c">
+        <dex dex="C:\Users\ssrik_000\Desktop\mangoSeed-master\app\build\intermediates\pre-dexed\debug\classes-e438834ed78499aa55dfd498b99e9ae9abc5f73b.jar" />
+    </item>
+
+</items>
